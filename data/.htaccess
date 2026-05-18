@@ -1,0 +1,7 @@
+# Bloqueia o acesso a todos os arquivos nesta pasta (inclusive o banco sqlite)
+Order Deny,Allow
+Deny from all
+
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>

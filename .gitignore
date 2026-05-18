@@ -1,0 +1,25 @@
+# Banco de dados (gerado na instalação)
+data/*.sqlite
+data/*.sqlite3
+data/*.db
+
+# Uploads (gerados pelo painel administrativo)
+uploads/*
+!uploads/.gitkeep
+
+# Backups e temporários
+*.bak
+*.bak-*
+*.swp
+*.tmp
+*.log
+
+# Sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editores
+.vscode/
+.idea/
+*.code-workspace

@@ -25,6 +25,9 @@ function sidebarLink($href, $icon, $label, $current) {
         <p class="text-[10px] text-gray-600 font-bold uppercase tracking-widest px-4 pt-4 pb-1">Dados</p>
         <?php sidebarLink('analytics.php', 'fa-solid fa-chart-pie',     'Analytics & Mapas',   $currentPage); ?>
         <?php sidebarLink('speedtests.php','fa-solid fa-gauge-high',    'Histórico Testes',    $currentPage); ?>
+
+        <p class="text-[10px] text-gray-600 font-bold uppercase tracking-widest px-4 pt-4 pb-1">Conta</p>
+        <?php sidebarLink('2fa-setup.php', 'fa-solid fa-shield-halved', 'Segurança / 2FA',     $currentPage); ?>
     </nav>
     <div class="p-4 border-t border-white/5">
         <a href="logout.php" class="block py-3 px-4 rounded-xl hover:bg-red-500/10 text-red-500 transition text-center font-bold text-sm uppercase tracking-widest">

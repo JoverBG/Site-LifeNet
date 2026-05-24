@@ -22,10 +22,18 @@ if (isset($_SESSION['lock_time']) && time() < $_SESSION['lock_time']) {
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($user && password_verify($password, $user['password'])) {
-            // Sucesso no login - Limpa tentativas malsucedidas
+            // Senha OK - Limpa tentativas malsucedidas
             unset($_SESSION['login_attempts']);
             unset($_SESSION['lock_time']);
-            
+
+            // Se 2FA está habilitado pra esse user, exige segundo fator antes de logar
+            if (!empty($user['totp_enabled'])) {
+                $_SESSION['pending_2fa_user_id'] = (int) $user['id'];
+                $_SESSION['pending_2fa_username'] = $user['username'];
+                header('Location: login_2fa.php');
+                exit;
+            }
+
             $_SESSION['admin_logged_in'] = true;
             $_SESSION['admin_user'] = $user['username'];
             header('Location: index.php');

@@ -143,6 +143,17 @@ try {
         $db->exec("ALTER TABLE plans ADD COLUMN custom_badge_color TEXT DEFAULT '#007BFF'");
     } catch (Exception $e) { }
 
+    // Migração 2FA: colunas em users + tabela de backup codes
+    try { $db->exec("ALTER TABLE users ADD COLUMN totp_secret TEXT"); } catch (Exception $e) { }
+    try { $db->exec("ALTER TABLE users ADD COLUMN totp_enabled INTEGER DEFAULT 0"); } catch (Exception $e) { }
+    $db->exec("CREATE TABLE IF NOT EXISTS totp_backup_codes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        code_hash TEXT NOT NULL,
+        used_at DATETIME,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )");
+
 } catch(PDOException $e) {
     die("Erro ao conectar com o banco de dados: " . $e->getMessage());
 }

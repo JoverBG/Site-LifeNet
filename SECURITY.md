@@ -161,3 +161,26 @@ sudo fail2ban-client status
 # Último backup
 ls -laht /home/lifenet/backups/ | head -3
 ```
+
+## Verificações realizadas (2026-05-24)
+
+Audit pós-hardening rodado após aplicar os 15 itens. Todos os checks verdes:
+
+| Camada | Verificado |
+|---|---|
+| Sistema | Ubuntu 26.04 LTS, 0 pacotes pendentes, `unattended-upgrades` ativo |
+| SSH | `PasswordAuthentication=no`, `PubkeyAuthentication=yes`, `PermitRootLogin=prohibit-password`, 0 falhas em 24h |
+| Firewall | ufw ativo (só 22/80/443), fail2ban com jails `sshd` + `nginx-botsearch` |
+| MySQL | Serviço inexistente, pacotes purgados |
+| nginx | `server_tokens off`, 6 security headers presentes (HSTS, X-Frame, X-Content-Type, Referrer, Permissions, **CSP-Report-Only**) |
+| Bloqueios HTTP | `/.env`, `/.git/config`, `/phpinfo.php`, `/data/database.sqlite` → todos **404** |
+| `.bak` nginx | Fora de `sites-available/` |
+| PHP hardening | 11/11 settings corretos (expose_php, cookies, disable_functions, open_basedir, allow_url_*, upload limits) |
+| 2FA | Schema migrado (`users.totp_secret`, `users.totp_enabled`, tabela `totp_backup_codes`) |
+| Backup | Último: 21 MB com 185 arquivos (webroot+nginx+php+certs+system) |
+| TLS | Cert válido até **2026-08-16** (Certbot auto-renew) |
+| Site | Home **HTTP 200**, admin login **HTTP 200** |
+
+### Pendência operacional (fora de segurança)
+
+- **Hairpin SNAT no Mikrotik edge** (`190.89.178.250`) — pra `lifenett.com.br` resolver de dentro da LAN do ISP. Adiado pra horário de menor tráfego.

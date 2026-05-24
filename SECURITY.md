@@ -101,21 +101,32 @@ Login por senha rejeitado (`Permission denied (publickey)`). `sudo` continua com
 
 Adicionado server block HTTP em nginx pra servir o site quando acessado por `http://10.20.2.11/` (Host header não bate com `lifenett.com.br`). Workaround enquanto o **hairpin SNAT no Mikrotik edge** (`190.89.178.250`) não é aplicado. Quando o hairpin for aplicado, esse server block pode ser removido.
 
----
+### 2FA TOTP no admin
 
-## Pendência conhecida
+Implementação nativa RFC 6238 (HMAC-SHA1 + base32), sem dependências externas (`api/totp.php`, ~80 linhas).
 
-### 2FA no admin (não aplicado)
+**Arquivos**:
+- `api/totp.php` — funções `totp_generate_secret`, `totp_verify`, `totp_uri`, `totp_generate_backup_codes`
+- `api/db.php` — migrations idempotentes (colunas `users.totp_secret`, `users.totp_enabled` + tabela `totp_backup_codes`)
+- `admin/2fa-setup.php` — habilitar (QR via api.qrserver.com + secret manual), desabilitar (exige senha + código), regenerar backup codes
+- `admin/login_2fa.php` — segundo fator (TOTP 6 dígitos ou backup code 8 dígitos), rate-limit 5/5min, `session_regenerate_id` após escalada
+- `admin/login.php` — após `password_verify`, se `totp_enabled=1` marca `$_SESSION['pending_2fa_user_id']` e redireciona
 
-Adiciona TOTP no `/admin/login.php`. Envolve:
-1. Lib TOTP (`RobThree/TwoFactorAuth` ou implementar RFC 6238 nativo, ~150 linhas)
-2. Coluna `users.totp_secret` + `users.totp_enabled` (migration SQLite)
-3. Página `/admin/2fa-setup.php` (QR code, valida primeiro código, salva secret)
-4. Modificar `/admin/login.php` pra exigir TOTP após senha quando `totp_enabled=1`
-5. Backup codes (caso perca o celular)
-6. Testar fluxo completo
+**Opt-in**: admins existentes continuam logando só com senha até habilitarem 2FA voluntariamente em `/admin/2fa-setup.php`.
 
-Estimativa: 2-3h de trabalho focado + testes.
+**Fluxo de habilitar**:
+1. Login normal → sidebar → "Segurança / 2FA"
+2. Escaneia QR code com app authenticator (Google Authenticator, Authy, 1Password, Bitwarden)
+3. Digita código de 6 dígitos pra confirmar (valida ANTES de salvar — evita lock-out)
+4. Recebe 6 backup codes de 8 dígitos (mostrados **uma única vez**, hash no DB)
+5. Próximo login: pede senha + código TOTP
+
+**Recuperação de emergência** (perdeu phone + backup codes):
+```bash
+ssh lifenet@10.20.2.11
+sudo sqlite3 /var/www/lifenett.com.br/data/database.sqlite \
+  "UPDATE users SET totp_enabled=0, totp_secret=NULL WHERE username='admin';"
+```
 
 ---
 

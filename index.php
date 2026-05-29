@@ -592,9 +592,8 @@ $carousel_imgs = $db->query("SELECT * FROM carousel_images ORDER BY display_orde
             </div>
             <div
                 class="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center text-[10px] text-gray-600 font-bold uppercase tracking-widest">
-                <p>© 2026 LifeNet. Todos os direitos reservados.</p>
-                <p class="mt-4 md:mt-0">Desenvolvido com ❤️ para
-                    LifeNet MT</p>
+                <p>©2026 LifeNet. Todos os direitos reservados. CNPJ: 33.476.774/0001-42</p>
+                <p class="mt-4 md:mt-0">Desenvolvido pela LifeNet</p>
             </div>
         </div>
     </footer> <!-- Botão Flutuante Fixo --> <a href="https://wa.me/<?php echo htmlspecialchars($whatsapp); ?>" target="_blank" class="fixed bottom-6 right-6 w-16 h-16 bg-[#25D366] text-white rounded-full flex items-center justify-center text-4xl shadow-[0_0_30px_rgba(37,211,102,0.6)] hover:scale-110 transition z-[100] animate-bounce">

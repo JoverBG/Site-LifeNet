@@ -592,7 +592,7 @@ $carousel_imgs = $db->query("SELECT * FROM carousel_images ORDER BY display_orde
             </div>
             <div
                 class="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center text-[10px] text-gray-600 font-bold uppercase tracking-widest">
-                <p>© 2026 LifeNet Telecom. Todos os direitos reservados.</p>
+                <p>© 2026 LifeNet. Todos os direitos reservados.</p>
                 <p class="mt-4 md:mt-0">Desenvolvido com ❤️ para
                     LifeNet MT</p>
             </div>

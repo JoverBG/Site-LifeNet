@@ -500,7 +500,7 @@ $carousel_imgs = $db->query("SELECT * FROM carousel_images ORDER BY display_orde
             </div>
         </div>
 
-        <!-- Status dos Serviços via Downdetector -->
+        <!-- Status dos Serviços — teste de disponibilidade da rede LifeNet -->
         <div class="mt-8 bg-card border border-white/5 rounded-[2rem] p-8 gs-reveal shadow-2xl relative overflow-hidden">
             <div class="absolute top-0 left-1/4 w-[350px] h-[250px] bg-blue-600/5 blur-[100px] rounded-full pointer-events-none"></div>
             <div class="absolute bottom-0 right-1/4 w-[300px] h-[200px] bg-purple-600/4 blur-[100px] rounded-full pointer-events-none"></div>
@@ -508,7 +508,7 @@ $carousel_imgs = $db->query("SELECT * FROM carousel_images ORDER BY display_orde
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 relative z-10">
                 <div>
                     <h3 class="font-bold text-2xl text-white mb-1">Status dos Serviços</h3>
-                    <p class="text-sm text-gray-400">Verifique se os principais serviços estão funcionando normalmente</p>
+                    <p class="text-sm text-gray-400">Testamos em tempo real a disponibilidade dos principais serviços a partir da rede LifeNet</p>
                 </div>
                 <a href="https://downdetector.com.br/" target="_blank" rel="noopener"
                    class="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2.5 rounded-xl transition text-xs font-bold text-gray-300 hover:text-white whitespace-nowrap">
@@ -785,7 +785,7 @@ $carousel_imgs = $db->query("SELECT * FROM carousel_images ORDER BY display_orde
                         ? `<span class="absolute -top-2 -right-2 w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold ${badgeCls}"><i class="fa-solid ${badgeIcon}"></i></span>`
                         : '';
                     return `
-                    <a href="https://downdetector.com.br/status/${svc.slug}/" target="_blank" rel="noopener"
+                    <a href="https://downdetector.com.br/fora-do-ar/${svc.slug}/" target="_blank" rel="noopener"
                        class="group bg-[#050b14]/80 border ${st.border} ${st.glow} rounded-2xl p-5 flex flex-col items-center gap-4 transition duration-300 hover:-translate-y-1 hover:border-white/20 cursor-pointer">
                         <div class="relative w-28 h-28 rounded-2xl flex items-center justify-center text-5xl"
                              style="background:${svc.color}20; color:${svc.color};">
@@ -838,8 +838,8 @@ $carousel_imgs = $db->query("SELECT * FROM carousel_images ORDER BY display_orde
                     const hasIssues = data.pages.flat().some(s => s.status !== 'online');
                     const total     = data.total;
                     footer.innerHTML = hasIssues
-                        ? `<i class="fa-solid fa-triangle-exclamation text-yellow-400 mr-1"></i> <span class="text-yellow-400 font-bold">Alguns serviços podem estar com instabilidade.</span> Última verificação: ${data.checked_at} &mdash; <a href="https://downdetector.com.br" target="_blank" class="text-[#007BFF] hover:underline">Ver Downdetector</a>`
-                        : `<i class="fa-solid fa-circle-check text-green-500 mr-1"></i> Todos os ${total} serviços estão operacionais. Última verificação: ${data.checked_at} &mdash; <a href="https://downdetector.com.br" target="_blank" class="text-[#007BFF] hover:underline">Ver Downdetector</a>`;
+                        ? `<i class="fa-solid fa-triangle-exclamation text-yellow-400 mr-1"></i> <span class="text-yellow-400 font-bold">Algum serviço não respondeu ao nosso teste de disponibilidade.</span> Testado da rede LifeNet às ${data.checked_at} &mdash; <a href="https://downdetector.com.br" target="_blank" class="text-[#007BFF] hover:underline">Conferir no Downdetector</a>`
+                        : `<i class="fa-solid fa-circle-check text-green-500 mr-1"></i> Os ${total} serviços responderam normalmente. Testado da rede LifeNet às ${data.checked_at} &mdash; <a href="https://downdetector.com.br" target="_blank" class="text-[#007BFF] hover:underline">Conferir no Downdetector</a>`;
                 }
 
             } catch(e) {

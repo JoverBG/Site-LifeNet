@@ -75,3 +75,16 @@ sudo nginx -t                                # valida config antes de recarregar
   ```
   O `--onboot 1` garante que a VM **inicia automaticamente** no próximo reboot do host, evitando a recorrência.
 - **Lição:** toda VM de produção no Proxmox deve estar com `onboot: 1`. Conferir com `qm config <id> | grep onboot`.
+
+### 2026-06-23 — "Status dos Serviços" mostrando Falha falsa
+- **Sintoma:** na landing, **Disney+ e HBO Max** apareciam em **"Falha"** mesmo funcionando.
+- **Causa raiz:** as URLs cadastradas na tabela `site_services` do SQLite estavam **erradas** — `https://disney-plus.com` e `https://hbo-max.com` (domínios inexistentes; alguém colou o slug como domínio). O monitor faz `HEAD` em cada URL e, sem DNS/conexão, marca offline.
+- **Correção (no banco, não-versionado):**
+  ```bash
+  ssh lifenet@10.20.2.11
+  sudo sqlite3 /var/www/lifenett.com.br/data/database.sqlite \
+    "UPDATE site_services SET url='https://www.disneyplus.com' WHERE slug='disney-plus';
+     UPDATE site_services SET url='https://www.max.com'        WHERE slug='hbo-max';"
+  ```
+- **Como o monitor funciona (importante):** `api/services_status.php` **NÃO** lê o Downdetector — ele faz um `HEAD` (curl_multi) em cada serviço **a partir da rede LifeNet** e classifica `online`/`slow`/`offline`. É um teste de **disponibilidade da nossa rede**, não o "sentimento" de reclamações do Downdetector (que está atrás de Cloudflare e não é raspável do servidor sem arriscar ban do IP público). Textos da seção foram ajustados pra refletir isso.
+- **Lição:** ao cadastrar serviço novo no painel, conferir a URL real (não o slug) — `curl -I <url>` deve responder algo `< 500`.

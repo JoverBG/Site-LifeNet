@@ -120,10 +120,11 @@ $plans = $db->query("SELECT * FROM plans ORDER BY id ASC")->fetchAll(PDO::FETCH_
                             </span>
                         <?php endif; ?>
                         
+                        <?php $spd = formatSpeed($plan['speed']); ?>
                         <div class="flex justify-between items-start mb-2">
-                            <h4 class="text-2xl font-black text-white"><?php echo htmlspecialchars($plan['speed']); ?> <span class="text-xs text-blue-500">MEGA</span></h4>
-                                <a href="javascript:void(0);" 
-                                   onclick="confirmDelete('<?php echo $plan['id']; ?>', '<?php echo htmlspecialchars($plan['speed']); ?> MEGA')"
+                            <h4 class="text-2xl font-black text-white"><?php echo htmlspecialchars($spd['value']); ?> <span class="text-xs text-blue-500"><?php echo $spd['unit']; ?></span></h4>
+                                <a href="javascript:void(0);"
+                                   onclick="confirmDelete('<?php echo $plan['id']; ?>', '<?php echo htmlspecialchars($spd['value'].' '.$spd['unit']); ?>')"
                                    style="cursor: pointer; z-index: 99; position: relative;"
                                    class="text-red-500 hover:text-red-400 bg-red-500/10 w-10 h-10 rounded-full flex items-center justify-center transition border border-red-500/20 shadow-lg">
                                     <i class="fa-solid fa-trash"></i>
@@ -154,8 +155,9 @@ $plans = $db->query("SELECT * FROM plans ORDER BY id ASC")->fetchAll(PDO::FETCH_
                         </div>
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-gray-400 text-xs font-bold uppercase mb-2">Velocidade</label>
-                                <input type="number" name="speed" required placeholder="Ex: 300" class="w-full bg-[#050b14] border border-white/10 rounded-xl py-2 px-3 text-white focus:outline-none focus:border-[#007BFF]">
+                                <label class="block text-gray-400 text-xs font-bold uppercase mb-2">Velocidade (em Mega)</label>
+                                <input type="number" name="speed" required placeholder="Ex: 300 (use 1000 p/ 1 Giga)" class="w-full bg-[#050b14] border border-white/10 rounded-xl py-2 px-3 text-white focus:outline-none focus:border-[#007BFF]">
+                                <p class="text-[10px] text-gray-500 mt-1">Sempre em Mega. <strong>1000 ou mais</strong> aparece como GIGA automaticamente (ex: 1000 → 1 GIGA).</p>
                             </div>
                             <div>
                                 <label class="block text-gray-400 text-xs font-bold uppercase mb-2">Preço (R$)</label>

@@ -2,6 +2,20 @@
 // api/db.php
 // Conexão com o banco de dados SQLite
 
+/**
+ * Formata a velocidade de um plano em valor + unidade.
+ * >= 1000 vira GIGA (1000->"1", 1500->"1.5", 2000->"2"); abaixo disso, MEGA.
+ * Retorna ['value' => string, 'unit' => 'MEGA'|'GIGA'].
+ */
+function formatSpeed($speed) {
+    $n = (int) preg_replace('/\D/', '', (string) $speed);
+    if ($n >= 1000) {
+        $val = rtrim(rtrim(number_format($n / 1000, 1, '.', ''), '0'), '.');
+        return ['value' => $val, 'unit' => 'GIGA'];
+    }
+    return ['value' => (string) $n, 'unit' => 'MEGA'];
+}
+
 $dbPath = __DIR__ . '/../data/database.sqlite';
 $dataDir = __DIR__ . '/../data';
 
@@ -153,6 +167,26 @@ try {
         used_at DATETIME,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )");
+
+    // Tabela de Visitas (analytics caseiro de acesso ao site)
+    // IP real vem do beacon client-side (o servidor só enxerga o CCR edge 10.10.20.5)
+    $db->exec("CREATE TABLE IF NOT EXISTS page_views (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        ip_address TEXT,
+        city TEXT,
+        region TEXT,
+        latitude REAL,
+        longitude REAL,
+        path TEXT,
+        referrer TEXT,
+        user_agent TEXT,
+        is_bot INTEGER DEFAULT 0,
+        visitor_id TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )");
+    // Índices p/ consultas do painel (por data e por visitante)
+    try { $db->exec("CREATE INDEX IF NOT EXISTS idx_pv_created ON page_views(created_at)"); } catch (Exception $e) { }
+    try { $db->exec("CREATE INDEX IF NOT EXISTS idx_pv_visitor ON page_views(visitor_id)"); } catch (Exception $e) { }
 
 } catch(PDOException $e) {
     die("Erro ao conectar com o banco de dados: " . $e->getMessage());

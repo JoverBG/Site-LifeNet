@@ -88,3 +88,25 @@ sudo nginx -t                                # valida config antes de recarregar
   ```
 - **Como o monitor funciona (importante):** `api/services_status.php` **NÃO** lê o Downdetector — ele faz um `HEAD` (curl_multi) em cada serviço **a partir da rede LifeNet** e classifica `online`/`slow`/`offline`. É um teste de **disponibilidade da nossa rede**, não o "sentimento" de reclamações do Downdetector (que está atrás de Cloudflare e não é raspável do servidor sem arriscar ban do IP público). Textos da seção foram ajustados pra refletir isso.
 - **Lição:** ao cadastrar serviço novo no painel, conferir a URL real (não o slug) — `curl -I <url>` deve responder algo `< 500`.
+
+---
+
+## 📊 Analytics de visitas (caseiro)
+
+O site registra cada acesso na tabela `page_views` (SQLite). Como funciona e **por que é assim**:
+
+- **O nginx NÃO enxerga o IP real do visitante.** Por causa da regra de **hairpin masquerade** no CCR edge (`10.10.60.1`), todo o tráfego chega no nginx como `10.10.20.5` (o IP do CCR). Confirmado no access log: 100% das requisições vêm desse IP. O Mikrotik faz NAT em camada 3/4 e não consegue injetar o IP num header HTTP.
+- **Solução (beacon client-side):** no `index.php`, um JS leve chama `https://api.ipify.org` **no navegador do visitante** (a chamada sai do cliente, contornando o NAT) e envia `{ip, path, referrer, vid}` para `api/track.php` via `navigator.sendBeacon`. O `vid` é um UUID em `localStorage` (visitante único).
+- **`api/track.php`:** valida que o IP é público, **geolocaliza server-side** reusando `api/geo_helper.php` (`ip-api.com`), filtra **bots** por User-Agent (≈metade do tráfego são scanners) e grava em `page_views`. Bots não geram chamada de geo.
+- **CSP:** o `connect-src` do nginx libera `https://api.ipify.org` (necessário quando a CSP virar enforce; hoje é Report-Only).
+- **Alternativas descartadas:** Cloudflare na frente (mudaria DNS do Registro.br) e mexer no NAT/rota do CCR (risco de derrubar o site). Ver histórico se um dia quiser IP real **server-side**.
+- **LGPD:** hoje guarda IP completo. Se for expor publicamente, anonimizar (truncar último octeto) e referenciar no `privacidade.php`.
+
+## 🚀 Planos: como cadastrar GIGA
+
+O campo **Velocidade** no painel é numérico e **sempre em Mega**. O helper `formatSpeed()` (em `api/db.php`) exibe automaticamente:
+
+- `>= 1000` → **GIGA** (ex: `1000` → "1 GIGA", `1500` → "1.5 GIGA", `2000` → "2 GIGA")
+- abaixo disso → **MEGA** (ex: `300` → "300 MEGA")
+
+Aplicado no card do plano e no link de WhatsApp (`index.php`) e na lista do admin (`admin/plans.php`). **Para criar um plano de 1 giga: digite `1000` no campo Velocidade.**

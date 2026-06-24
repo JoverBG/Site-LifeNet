@@ -341,7 +341,8 @@ $carousel_imgs = $db->query("SELECT * FROM carousel_images ORDER BY display_orde
                             <?php echo $badgeText; ?>
                         </div>
                         <div class="text-center mt-6">
-                            <div class="text-6xl font-black mb-2 tracking-tighter" style="<?php echo $textColorStyle; ?>"><?php echo htmlspecialchars($plan['speed']); ?><span class="text-xl" style="<?php echo $isPopular ? 'color:#FF8C00;' : ($isBestSeller ? 'color:#22c55e;' : ($hasCustomBadge ? 'color:'.htmlspecialchars($plan['custom_badge_color']).';' : 'color:#007BFF;')); ?>"> MEGA</span></div>
+                            <?php $spd = formatSpeed($plan['speed']); ?>
+                            <div class="text-6xl font-black mb-2 tracking-tighter" style="<?php echo $textColorStyle; ?>"><?php echo htmlspecialchars($spd['value']); ?><span class="text-xl" style="<?php echo $isPopular ? 'color:#FF8C00;' : ($isBestSeller ? 'color:#22c55e;' : ($hasCustomBadge ? 'color:'.htmlspecialchars($plan['custom_badge_color']).';' : 'color:#007BFF;')); ?>"> <?php echo $spd['unit']; ?></span></div>
                             <p class="<?php echo $isPopular ? 'text-white' : ($isBestSeller ? 'text-green-500' : ($hasCustomBadge ? '' : 'text-[#007BFF]')); ?> text-xs font-bold tracking-[0.2em] mb-4 mt-6" style="<?php echo ($hasCustomBadge && !$isPopular && !$isBestSeller) ? 'color:' . htmlspecialchars($plan['custom_badge_color']) . ';' : ''; ?>">POR MÊS</p>
                             <div class="text-5xl font-black mb-3" style="<?php echo ($isPopular || $isBestSeller) ? 'color:#fff;' : ($hasCustomBadge ? 'color:'.htmlspecialchars($plan['custom_badge_color']).';' : 'color:#007BFF;'); ?>">R$ <?php echo htmlspecialchars($plan['price']); ?></div>
                             <p class="text-yellow-500 text-[11px] font-bold uppercase tracking-widest"><?php echo htmlspecialchars($plan['name']); ?></p>
@@ -352,7 +353,7 @@ $carousel_imgs = $db->query("SELECT * FROM carousel_images ORDER BY display_orde
                             <i class="fa-solid fa-gamepad text-2xl" style="<?php echo $isPopular ? 'color: #FF8C00; text-shadow: 0 0 15px rgba(255, 140, 0, 0.7);' : ($isBestSeller ? 'color:#22c55e;' : ($hasCustomBadge ? 'color:'.htmlspecialchars($plan['custom_badge_color']).';' : 'color: #007BFF; text-shadow: 0 0 15px rgba(0, 123, 255, 0.7);')); ?>"></i> 
                             <i class="fa-solid fa-tv text-2xl" style="<?php echo $isPopular ? 'color: #FF8C00; text-shadow: 0 0 15px rgba(255, 140, 0, 0.7);' : ($isBestSeller ? 'color:#22c55e;' : ($hasCustomBadge ? 'color:'.htmlspecialchars($plan['custom_badge_color']).';' : 'color: #007BFF; text-shadow: 0 0 15px rgba(0, 123, 255, 0.7);')); ?>"></i>
                         </div> 
-                        <a href="https://wa.me/<?php echo htmlspecialchars($whatsapp); ?>?text=Olá! Quero assinar o plano <?php echo htmlspecialchars($plan['speed']); ?> MEGA por R$ <?php echo htmlspecialchars($plan['price']); ?>." target="_blank" class="w-full text-white font-black py-5 rounded-2xl transition text-center block text-xl" style="<?php echo $bgColorStyle; ?> <?php echo $btnShadow; ?>">Assinar Agora</a>
+                        <a href="https://wa.me/<?php echo htmlspecialchars($whatsapp); ?>?text=Olá! Quero assinar o plano <?php echo htmlspecialchars($spd['value'].' '.$spd['unit']); ?> por R$ <?php echo htmlspecialchars($plan['price']); ?>." target="_blank" class="w-full text-white font-black py-5 rounded-2xl transition text-center block text-xl" style="<?php echo $bgColorStyle; ?> <?php echo $btnShadow; ?>">Assinar Agora</a>
                     </div>
                     <?php endforeach; ?>
                 <?php else: ?>
@@ -850,6 +851,35 @@ $carousel_imgs = $db->query("SELECT * FROM carousel_images ORDER BY display_orde
 
         loadServiceStatus();
 
+    </script>
+
+    <!-- Beacon de visitas: captura o IP REAL no navegador (contorna o NAT do CCR) -->
+    <script>
+    (function () {
+        try {
+            var vid = localStorage.getItem('ln_vid');
+            if (!vid) {
+                vid = (window.crypto && crypto.randomUUID)
+                    ? crypto.randomUUID()
+                    : (Date.now().toString(36) + Math.random().toString(36).slice(2));
+                localStorage.setItem('ln_vid', vid);
+            }
+            var send = function (body) {
+                var blob = new Blob([JSON.stringify(body)], { type: 'application/json' });
+                if (navigator.sendBeacon) {
+                    navigator.sendBeacon('api/track.php', blob);
+                } else {
+                    fetch('api/track.php', { method: 'POST', body: blob, keepalive: true });
+                }
+            };
+            var base = { path: location.pathname, referrer: document.referrer, vid: vid };
+            // Pega o IP público real do visitante (a chamada sai do navegador dele)
+            fetch('https://api.ipify.org?format=json')
+                .then(function (r) { return r.json(); })
+                .then(function (d) { base.ip = d && d.ip; send(base); })
+                .catch(function () { send(base); }); // sem IP: registra a visita mesmo assim
+        } catch (e) { /* nunca quebra a página por causa do tracking */ }
+    })();
     </script>
 </body>
 

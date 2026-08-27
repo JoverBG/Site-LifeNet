@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baixe o app Minha LifeNet</title>
+    <meta name="description" content="2ª via com PIX na hora, promessa de pagamento e avisos da sua rede. Grátis para iPhone e Android.">
+    <meta name="theme-color" content="#050b14">
+    <link rel="canonical" href="https://lifenett.com.br/app">
+
+    <!-- Preview do link no WhatsApp -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="LifeNet">
+    <meta property="og:title" content="Minha LifeNet — sua internet no celular">
+    <meta property="og:description" content="2ª via com PIX na hora, promessa de pagamento e avisos da sua rede. Grátis para iPhone e Android.">
+    <meta property="og:url" content="https://lifenett.com.br/app">
+    <meta property="og:image" content="https://lifenett.com.br/img/og-app.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <link rel="icon" href="/img/app-icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --azul: #007BFF;
+            --laranja: #FF8C00;
+            --fundo: #050b14;
+            --cartao: #0d182c;
+            --linha: rgba(255, 255, 255, .09);
+            --texto: #eef3fc;
+            --suave: #8a99b5;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            background: var(--fundo);
+            color: var(--texto);
+            font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+            line-height: 1.55;
+            -webkit-font-smoothing: antialiased;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .brilho {
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(60% 40% at 20% 0%, rgba(0, 123, 255, .16), transparent 70%),
+                radial-gradient(50% 40% at 90% 20%, rgba(255, 140, 0, .10), transparent 70%);
+            pointer-events: none;
+        }
+
+        main {
+            position: relative;
+            flex: 1;
+            width: 100%;
+            max-width: 560px;
+            margin: 0 auto;
+            padding: 48px 22px 40px;
+            text-align: center;
+        }
+
+        .icone {
+            width: 112px;
+            height: 112px;
+            border-radius: 26px;
+            box-shadow: 0 22px 50px -18px rgba(0, 123, 255, .75);
+        }
+
+        h1 {
+            font-size: 30px;
+            font-weight: 800;
+            letter-spacing: -.6px;
+            margin: 20px 0 8px;
+        }
+
+        .sub {
+            color: var(--suave);
+            font-size: 15.5px;
+            margin: 0 auto;
+            max-width: 30ch;
+        }
+
+        .abrindo {
+            display: none;
+            margin: 22px auto 0;
+            color: var(--suave);
+            font-size: 13.5px;
+        }
+
+        .abrindo b { color: var(--texto); font-weight: 600; }
+
+        .lista {
+            list-style: none;
+            padding: 0;
+            margin: 30px 0 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            text-align: left;
+        }
+
+        .lista li {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            background: var(--cartao);
+            border: 1px solid var(--linha);
+            border-radius: 15px;
+            padding: 13px 15px;
+        }
+
+        .lista .emoji {
+            width: 38px;
+            height: 38px;
+            flex: 0 0 auto;
+            display: grid;
+            place-items: center;
+            border-radius: 12px;
+            background: rgba(0, 123, 255, .13);
+            font-size: 18px;
+        }
+
+        .lista strong { display: block; font-size: 14.5px; font-weight: 700; }
+        .lista span { font-size: 12.5px; color: var(--suave); }
+
+        .botoes {
+            display: flex;
+            flex-direction: column;
+            gap: 11px;
+            margin-top: 26px;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            border-radius: 14px;
+            padding: 15px 18px;
+            font-size: 15px;
+            font-weight: 700;
+            text-decoration: none;
+            border: 1px solid var(--linha);
+            background: var(--cartao);
+            color: var(--texto);
+            transition: transform .12s ease, border-color .12s ease;
+        }
+
+        .btn:hover { transform: translateY(-1px); border-color: rgba(255, 255, 255, .22); }
+        .btn:focus-visible { outline: 2px solid var(--azul); outline-offset: 3px; }
+        .btn.principal { background: var(--azul); border-color: var(--azul); }
+
+        .aviso {
+            margin-top: 24px;
+            font-size: 13px;
+            color: var(--suave);
+        }
+
+        .aviso b { color: var(--texto); font-weight: 600; }
+
+        footer {
+            position: relative;
+            text-align: center;
+            padding: 22px;
+            font-size: 12.5px;
+            color: #5d6f8c;
+            border-top: 1px solid var(--linha);
+        }
+
+        footer a { color: var(--suave); }
+
+        .faixa {
+            height: 4px;
+            background: linear-gradient(90deg, var(--azul), var(--laranja));
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * { transition: none !important; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="faixa"></div>
+    <div class="brilho"></div>
+
+    <main>
+        <img class="icone" src="/img/app-icon.png" alt="Ícone do app Minha LifeNet" width="112" height="112">
+        <h1>Minha LifeNet</h1>
+        <p class="sub">Sua internet no celular, sem esperar atendimento.</p>
+
+        <p class="abrindo" id="abrindo">Abrindo a <b id="loja">loja</b>… se não abrir sozinho, use o botão abaixo.</p>
+
+        <ul class="lista">
+            <li>
+                <span class="emoji">📄</span>
+                <span><strong>2ª via com PIX na hora</strong><span>Copie o código e pague na hora</span></span>
+            </li>
+            <li>
+                <span class="emoji">🔓</span>
+                <span><strong>Promessa de pagamento</strong><span>Destrava enquanto seu pagamento é confirmado</span></span>
+            </li>
+            <li>
+                <span class="emoji">🔔</span>
+                <span><strong>Avisos da sua rede</strong><span>Você fica sabendo antes de ligar pra gente</span></span>
+            </li>
+        </ul>
+
+        <div class="botoes">
+            <a class="btn principal" id="btn-ios" href="https://apps.apple.com/br/app/id6790950631" rel="noopener">
+                 Baixar para iPhone
+            </a>
+            <a class="btn" id="btn-android" href="https://play.google.com/store/apps/details?id=br.com.lifenett.minhalifenet" rel="noopener">
+                ▶ Baixar para Android
+            </a>
+        </div>
+
+        <p class="aviso">É grátis. Entre com o seu <b>CPF</b> — leva menos de um minuto.</p>
+    </main>
+
+    <footer>
+        LifeNet · Pontal do Araguaia - MT · <a href="/">lifenett.com.br</a>
+    </footer>
+
+    <script>
+        (function () {
+            var IOS = "https://apps.apple.com/br/app/id6790950631";
+            var ANDROID = "https://play.google.com/store/apps/details?id=br.com.lifenett.minhalifenet";
+            var ua = navigator.userAgent || "";
+            // iPad novo se apresenta como Mac: o toque é o que o denuncia.
+            var ehIos = /iPad|iPhone|iPod/.test(ua) ||
+                (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+            var ehAndroid = /Android/i.test(ua);
+            window.__lnVaiRedirecionar = ehIos || ehAndroid;
+
+            if (ehIos || ehAndroid) {
+                document.getElementById("abrindo").style.display = "block";
+                document.getElementById("loja").textContent = ehIos ? "App Store" : "Google Play";
+                // Botão da plataforma certa em primeiro lugar, caso a loja não abra.
+                var botoes = document.querySelector(".botoes");
+                var primeiro = document.getElementById(ehIos ? "btn-ios" : "btn-android");
+                var segundo = document.getElementById(ehIos ? "btn-android" : "btn-ios");
+                primeiro.classList.add("principal");
+                segundo.classList.remove("principal");
+                botoes.insertBefore(primeiro, botoes.firstChild);
+                // `replace`: voltar leva de volta à conversa, não a esta página.
+                setTimeout(function () { location.replace(ehIos ? IOS : ANDROID); }, 220);
+            }
+        })();
+    </script>
+
+    <!-- Beacon de visitas: mesmo do index.php (o nginx só enxerga o IP do CCR) -->
+    <script>
+        (function () {
+            try {
+                var vid = localStorage.getItem('ln_vid');
+                if (!vid) {
+                    vid = (window.crypto && crypto.randomUUID)
+                        ? crypto.randomUUID()
+                        : (Date.now().toString(36) + Math.random().toString(36).slice(2));
+                    localStorage.setItem('ln_vid', vid);
+                }
+                var send = function (body) {
+                    var blob = new Blob([JSON.stringify(body)], { type: 'application/json' });
+                    if (navigator.sendBeacon) {
+                        navigator.sendBeacon('/api/track.php', blob);
+                    } else {
+                        fetch('/api/track.php', { method: 'POST', body: blob, keepalive: true });
+                    }
+                };
+                var base = { path: location.pathname + location.search, referrer: document.referrer, vid: vid };
+                if (window.__lnVaiRedirecionar) {
+                    // A loja abre em ~220ms; esperar o ipify perderia a visita.
+                    // Registra agora, sem IP — o que importa aqui é a contagem.
+                    send(base);
+                } else {
+                    fetch('https://api.ipify.org?format=json')
+                        .then(function (r) { return r.json(); })
+                        .then(function (d) { base.ip = d && d.ip; send(base); })
+                        .catch(function () { send(base); });
+                }
+            } catch (e) { /* nunca quebra a página por causa do tracking */ }
+        })();
+    </script>
+</body>
+
+</html>

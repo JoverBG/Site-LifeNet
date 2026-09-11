@@ -15,7 +15,7 @@ Guia operacional do **ambiente de produção** do site. Use isto quando o site s
 | **IP local** | `10.20.2.11` |
 | **Máquina** | Proxmox **VM 104 "ServidorWEB"** (host PVE `10.20.3.2:8006`) — rede `vmbr1 tag=101`, disco no HD-4TB |
 | **SO** | Ubuntu Server |
-| **Stack** | nginx + PHP-FPM + SQLite (sem MySQL) |
+| **Stack** | nginx + **Next.js (home, `/opt/lifenett-web`, serviço `lifenett-web` em `127.0.0.1:3100`)** + PHP-FPM (admin e `/api`) + SQLite (sem MySQL) — desde 2026-09-11, ver `web/README.md` |
 | **Webroot** | `/var/www/lifenett.com.br/` (dono `www-data:www-data`) |
 | **Banco** | `/var/www/lifenett.com.br/data/database.sqlite` |
 | **TLS** | Let's Encrypt / Certbot |
@@ -42,7 +42,8 @@ curl -I http://10.20.2.11/                  # bate direto no nginx, sem passar p
 ```
 - **Não responde nada (nem ping)** → a máquina (VM 104) provavelmente está **desligada ou travada**. Vá pro passo 3.
 - **Responde aqui mas não no público** → problema na borda (CCR1036 / DNAT / hairpin). Veja a seção de rede no SECURITY/memória.
-- **Responde `502 Bad Gateway`** → nginx vivo, mas **PHP-FPM caiu**. Vá pro passo 4.
+- **Responde `502 Bad Gateway` na home (`/`)** → nginx vivo, mas o **Next (`lifenett-web`) caiu**. Vá pro passo 4.
+- **Responde `502` só em `/admin` ou `/api`** → nginx vivo, mas **PHP-FPM caiu**. Vá pro passo 4.
 
 > 💡 **Truque de isolamento:** teste um vizinho da mesma sub-rede (ex.: `ping 10.20.2.1`, `curl 10.20.2.109`). Se os vizinhos respondem e só o `.11` não, o problema é a **máquina**, não a rede nem o DNS.
 
@@ -56,14 +57,25 @@ Depois de ligar, **espere ~15-30s** o Ubuntu bootar. O nginx pode responder `502
 ### 4. Serviços dentro da VM
 ```bash
 ssh lifenet@10.20.2.11
-sudo systemctl status nginx php8.5-fpm       # ajuste a versão do php se mudar
+sudo systemctl status nginx php8.5-fpm lifenett-web   # web + admin/api + home Next
+sudo systemctl restart lifenett-web          # home em 502? reinicia o Next (sobe em ~1s)
 sudo systemctl restart php8.5-fpm nginx      # reinicia o backend + web
 sudo nginx -t                                # valida config antes de recarregar
+curl -I http://127.0.0.1:3100/               # o Next responde direto? (esperado 200)
 ```
+
+> **Rollback do Next pro PHP antigo** (se precisar tirar o Next do caminho): restaure o backup do server block em
+> `/etc/nginx/backups/lifenett.com.br.bak-<data>` e `sudo nginx -t && sudo systemctl reload nginx`. O `index.php` continua no webroot.
 
 ---
 
 ## 📒 Histórico de incidentes
+
+### 2026-09-11 — Home migrada pra Next.js (mudança planejada, sem incidente)
+- Fases 1–4 de `MIGRACAO-REACT-VPS.md`: PHP virou API de leitura (`api/site.php`), front novo em `web/`, ISR de 60 s, teste em `novo.lifenett.com.br` e corte no nginx via `snippets/lifenett-next.conf`.
+- Comparação por screenshot (desktop e mobile) deu a mesma altura de página do PHP. Zero CDN no front novo (fontes, ícones e libs no bundle).
+- Efeito colateral bom: o admin guardava o WhatsApp sem o DDI (`66 9 9229-9589`) e a home antiga gerava `wa.me/66 9…`; a API normaliza pra `5566992299589`.
+- Ruído esperado no `journalctl -u lifenett-web`: `Server Reference ID did not match` = scanners mandando cabeçalho `Next-Action`; o site não usa server actions.
 
 ### 2026-06-06 — Site fora do ar após reboot do Proxmox
 - **Sintoma:** `lifenett.com.br` inacessível (público e interno recusando 80/443).

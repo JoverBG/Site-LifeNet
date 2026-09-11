@@ -1,6 +1,6 @@
 # Plano: Migração do site pra React (Next.js) + VPS Hostinger
 
-> **Status: EM ANDAMENTO — Fase 1 concluída em 2026-09-11.** Decisões tomadas em 2026-07-17.
+> **Status: FASES 1–4 CONCLUÍDAS em 2026-09-11 — o site em Next.js está EM PRODUÇÃO na VM 104.** Falta só a Fase 5 (VPS Hostinger). Decisões tomadas em 2026-07-17.
 > Este documento é o plano de referência da migração.
 
 ## Decisões já tomadas
@@ -25,16 +25,20 @@
 - Helper compartilhado `api/_json.php` (não é endpoint, responde 404 se acessado direto).
 - ⚠️ Achado: o admin guarda o WhatsApp como `66 9 9229-9589` (sem o 55) e o `index.php` usa cru → a home hoje gera `wa.me/66 9 9229-9589`. A API normaliza (prefixa 55 quando vêm 10–11 dígitos); o site PHP atual NÃO foi alterado.
 
-### Fase 2 — Front Next.js
+### Fase 2 — Front Next.js ✅ FEITA (2026-09-11)
+- Está em `web/` (Next 15.5, React 19, Tailwind 3, Swiper 11, GSAP, Font Awesome via npm, Inter via next/font — **zero CDN**). Ver `web/README.md`.
+- Comparado pixel a pixel com o PHP por screenshot (desktop 1366 e mobile 390): mesma altura de página nos dois.
 - Projeto novo (checkout no D:), Tailwind v3 **compilado** (sai o CDN).
 - Componentizar o `index.php` (~55KB): Hero, Planos (replicar `formatSpeed` GIGA/MEGA de `api/db.php`), Cobertura (Leaflet), Carrossel (Swiper React ou Embla), Status dos Serviços, rodapé (CNPJ).
 - Portar o beacon de analytics (ipify + `sendBeacon` → `api/track.php`) — é client-side, migra fácil.
 - Rotas: home, `privacidade`, `termos`, `excluir-conta` (hoje HTMLs soltos na prod, fora do git).
 
-### Fase 3 — SSG/ISR
+### Fase 3 — SSG/ISR ✅ FEITA (2026-09-11)
 - Conteúdo vem do admin e muda pouco → ISR com `revalidate` (ou on-demand): página estática e rápida, mas reflete edições do admin.
 
-### Fase 4 — Deploy paralelo e corte
+### Fase 4 — Deploy paralelo e corte ✅ FEITA (2026-09-11)
+- Teste em `novo.lifenett.com.br` (DNS no Cloudflare + certbot), corte no nginx via `snippets/lifenett-next.conf`; backup em `/etc/nginx/backups/`.
+- DNS do domínio hoje é **Cloudflare** (não mais Registro.br) — token em `~/.cloudflare/lifenett.env`.
 - Subir o Next em porta interna, testar em subdomínio (`novo.lifenett.com.br`) antes do corte.
 - Corte: server block principal aponta pro Next; `/admin` e `/api` continuam no PHP-FPM. Rollback = reverter o nginx.
 - ⚠️ **CSP do nginx** lista os CDNs do site atual — precisa de ajuste pro bundle do Next.

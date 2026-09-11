@@ -1,0 +1,20 @@
+[Unit]
+Description=lifenett.com.br - front Next.js (standalone)
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+User=lifenet
+Group=lifenet
+WorkingDirectory=/opt/lifenett-web
+Environment=NODE_ENV=production
+Environment=PORT=3100
+Environment=HOSTNAME=127.0.0.1
+# Revalidação ISR lê o admin PHP pelo server block HTTP interno (sem sair pela internet)
+Environment=SITE_API_URL=http://10.20.2.11/api
+ExecStart=/usr/bin/node server.js
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

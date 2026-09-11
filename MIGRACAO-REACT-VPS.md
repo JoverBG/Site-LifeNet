@@ -1,7 +1,7 @@
 # Plano: Migração do site pra React (Next.js) + VPS Hostinger
 
-> **Status: PLANEJADO — nada iniciado.** Decisões tomadas em 2026-07-17.
-> Este documento é o plano de referência pra quando a migração começar.
+> **Status: EM ANDAMENTO — Fase 1 concluída em 2026-09-11.** Decisões tomadas em 2026-07-17.
+> Este documento é o plano de referência da migração.
 
 ## Decisões já tomadas
 
@@ -15,9 +15,15 @@
 
 ## Fases
 
-### Fase 1 — API de leitura (PHP vira backend) ← **primeiro passo concreto**
-- Criar endpoints JSON no PHP existente (pasta `api/`): `settings`, `planos`, `cobertura`, `carrossel`, `services_status`.
-- Zero risco: nada visível muda, admin continua gravando no SQLite normalmente.
+### Fase 1 — API de leitura (PHP vira backend) ✅ FEITA (2026-09-11)
+- Endpoints JSON em `api/` (GET/HEAD apenas, CORS `*`, `Cache-Control: max-age=60`), em produção:
+  - `api/settings.php` — só as 8 chaves que o site usa, com os mesmos defaults do `index.php`; inclui `logo_*_url` absolutas, `whatsapp_digits` e `whatsapp_link`.
+  - `api/planos.php` — `speed` já formatada (`{value, unit, label}` via `formatSpeed`), `speed_mbps` cru, `popular`/`best_seller` booleanos, `benefits` como array (split por vírgula) e `whatsapp_link` com o mesmo texto do botão "Assinar Agora".
+  - `api/cobertura.php`, `api/carrossel.php` (com `url` absoluta da imagem).
+  - `api/site.php` — agregado dos 4 acima numa chamada só (o que o Next vai usar no ISR).
+  - `api/services_status.php` já existia em JSON e continua separado (é lento: sonda a rede).
+- Helper compartilhado `api/_json.php` (não é endpoint, responde 404 se acessado direto).
+- ⚠️ Achado: o admin guarda o WhatsApp como `66 9 9229-9589` (sem o 55) e o `index.php` usa cru → a home hoje gera `wa.me/66 9 9229-9589`. A API normaliza (prefixa 55 quando vêm 10–11 dígitos); o site PHP atual NÃO foi alterado.
 
 ### Fase 2 — Front Next.js
 - Projeto novo (checkout no D:), Tailwind v3 **compilado** (sai o CDN).
@@ -54,9 +60,9 @@
 
 ## Pendências antes de começar
 
-- [ ] Registrar dados da VPS Hostinger (IP, usuário, chave SSH, plano vCPU/RAM) e testar acesso.
+- [x] Registrar dados da VPS Hostinger — resolvido por tabela: o painel de atendimento e a `api.lifenett.com.br` já rodam nessa VPS desde 2026-09-06 (ver docs do LifeBot-Painel).
 - [ ] Verificar recursos da VPS × soma dos serviços planejados (site + app-api + Postgres; 4GB de RAM é o confortável).
-- [ ] Trazer `excluir-conta.html` e `privacidade-app.html` da prod pro git (hoje só existem na VM 104, untracked).
+- [x] Trazer `excluir-conta.html` e `privacidade-app.html` da prod pro git (feito 2026-09-11, nos dois repos).
 
 ## Estimativa
 

@@ -69,6 +69,22 @@ curl -I http://127.0.0.1:3100/               # o Next responde direto? (esperado
 
 ---
 
+## 🛰️ Monitor externo (alerta no Telegram)
+
+Desde 2026-09-11 a **VPS Hostinger `lifenet-core`** (`179.197.78.116`, fora da rede LifeNet) checa o site a cada 2 minutos
+e avisa no Telegram do Lucas (bot do painel) quando cai e quando volta. Cobre queda de link, de VM e de serviço.
+
+| Item | Valor |
+|---|---|
+| Script | `/opt/monitor/site-lifenett-monitor.sh` (cópia em `deploy/monitor/` deste repo) |
+| Agendamento | `systemd` timer `site-lifenett-monitor.timer` (a VPS não tem cron) |
+| Alvos | `/` (Next), `/api/settings.php` (PHP) e `/app/` (estático) |
+| Regra | 2 falhas seguidas (~4 min) = "fora do ar"; 1 sucesso = "voltou" |
+| Estado | `/var/lib/site-monitor/` |
+| Ver | `ssh -i ~/.ssh/lifenet_vps root@179.197.78.116 'journalctl -u site-lifenett-monitor -n 20'` |
+
+---
+
 ## 📒 Histórico de incidentes
 
 ### 2026-09-11 — Home migrada pra Next.js (mudança planejada, sem incidente)

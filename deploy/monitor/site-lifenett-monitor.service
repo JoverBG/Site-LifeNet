@@ -1,0 +1,6 @@
+[Unit]
+Description=Monitor externo do site lifenett.com.br (alerta no Telegram)
+
+[Service]
+Type=oneshot
+ExecStart=/opt/monitor/site-lifenett-monitor.sh

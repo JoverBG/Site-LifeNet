@@ -27,7 +27,14 @@ Guia operacional do **ambiente de produção** do site. Use isto quando o site s
 
 ## 🚑 Site fora do ar — checklist de diagnóstico
 
-Diagnostique de fora pra dentro. O objetivo é isolar **rede/DNS** × **máquina desligada** × **serviço (nginx/PHP) quebrado**.
+Diagnostique de fora pra dentro. O objetivo é isolar **rede/DNS** × **máquina desligada** × **serviço (nginx/PHP/Next) quebrado**.
+
+> 🥇 **Passo zero: pergunte ao monitor externo antes de acreditar que o site caiu.**
+> ```bash
+> ssh -i ~/.ssh/lifenet_vps root@179.197.78.116 'journalctl -u site-lifenett-monitor -n 30'
+> ```
+> Ele checa de fora da rede LifeNet a cada 2 min. Se ele registra `200 fails=0`, **o site está no
+> ar e o problema é a sua conexão** — foi exatamente o que aconteceu em 2026-09-12 (ver histórico).
 
 ### 1. O site público responde?
 ```bash
@@ -69,6 +76,21 @@ curl -I http://127.0.0.1:3100/               # o Next responde direto? (esperado
 
 ---
 
+## 🚀 Como publicar uma mudança
+
+| O que mudou | Onde editar | Como publicar |
+| :--- | :--- | :--- |
+| **Página inicial** (textos, layout, componentes) | `web/` (Next.js) | receita completa em **`web/README.md`**: `next build` → `rsync` pra `/opt/lifenett-web` → `systemctl restart lifenett-web` |
+| **Planos, banners, logos, contatos** | painel `/admin` | nada a publicar: o Next relê a API sozinho em até 60 s (ISR) |
+| **Admin ou endpoints `/api`** | `admin/`, `api/` | `php -l` na VM **antes** de copiar pro webroot (não há PHP nesta estação) |
+| **nginx / systemd** | `web/deploy/` guarda as cópias | editar na VM, `nginx -t`, `systemctl reload nginx`, e trazer a cópia de volta pro repo |
+
+> ⚠️ **Três repositórios, não um.** O clone de trabalho (`~/projetos/site-lifenet`) e o checkout
+> `D:` têm remote pro GitHub; o repo da produção (`/var/www/lifenett.com.br/.git`) **não tem**.
+> Toda mudança no webroot precisa ser commitada nos dois lados.
+
+---
+
 ## 🛰️ Monitor externo (alerta no Telegram)
 
 Desde 2026-09-11 a **VPS Hostinger `lifenet-core`** (`179.197.78.116`, fora da rede LifeNet) checa o site a cada 2 minutos
@@ -86,6 +108,22 @@ e avisa no Telegram do Lucas (bot do painel) quando cai e quando volta. Cobre qu
 ---
 
 ## 📒 Histórico de incidentes
+
+### 2026-09-12 — Falso alarme de "site fora do ar" (era a rede da estação)
+Durante uma revisão automatizada, um verificador declarou o site fora do ar às 23:43 UTC e
+disse ter "confirmado de fora". **Não era verdade:** o monitor externo na VPS registrou `200`
+nas 31 checagens do período, e nem a VM 104 nem o host Proxmox reiniciaram (`uptime` de 5 dias
+nos dois). O que caiu por ~40 min foi a rede da estação de trabalho, que enxergava só o gateway
+local. **Lição:** a única fonte confiável para "o site caiu" é o monitor da VPS ou uma rede
+comprovadamente diferente — checar antes de mexer em qualquer serviço.
+Efeito colateral útil: o episódio validou o monitor, que tinha sido instalado no dia anterior.
+
+### 2026-09-12 — Revisão de segurança pós-migração + imagens otimizadas
+Revisão em quatro frentes (front, API PHP, infraestrutura, navegador). Os achados que valiam
+estão detalhados em `SECURITY.md` (rajada 2026-09-12) — o principal era o server block interno
+`10.20.2.11` respondendo pela Internet via header `Host`, servindo a home PHP antiga em HTTP
+puro. Na mesma passagem, banner e fundo viraram WebP e a home caiu de **8,4 MB para 4,5 MB**
+(detalhes e o que ainda pesa em `web/README.md`).
 
 ### 2026-09-11 — Home migrada pra Next.js (mudança planejada, sem incidente)
 - Fases 1–4 de `MIGRACAO-REACT-VPS.md`: PHP virou API de leitura (`api/site.php`), front novo em `web/`, ISR de 60 s, teste em `novo.lifenett.com.br` e corte no nginx via `snippets/lifenett-next.conf`.

@@ -53,6 +53,24 @@
 - Reescrever o admin em React (ou manter PHP indefinidamente — funciona e tem 2FA).
 - Extrair design tokens compartilhados com o app Minha LifeNet.
 
+## Depois do corte (2026-09-11 → 12)
+
+- **Revisão em 4 frentes** (front, API PHP, infra, navegador) com tudo corrigido no mesmo lote —
+  ver `SECURITY.md`, rajada 2026-09-12.
+- **Página 404 própria** (a padrão do Next era texto escuro em fundo escuro), favicon e imagem de
+  compartilhamento (`og.png`, 1200x630) próprios.
+- **Monitor externo** do site rodando na VPS com alerta no Telegram (`OPERACOES.md`).
+- **Backup diário** passou a incluir `/opt/lifenett-web` e a unit do systemd.
+- **Banner e fundo em WebP**: home de 8,4 MB → 4,5 MB (desktop) e 4,4 MB (celular).
+- **WhatsApp do admin** corrigido para `5566992299589` (estava sem o DDI 55).
+
+Pendente de decisão, nada bloqueante: `mapa.png` (2,6 MB) acumula duas funções — ilustra a
+cobertura num card de 144 px e é o arquivo que o teste de velocidade baixa; separar as duas
+derrubaria a home pra ~2 MB. `www.` responde 200 em vez de 301 pro apex. CSP em Report-Only
+ainda lista os CDNs do site antigo.
+
+---
+
 ## Efeitos colaterais da saída da VM 104
 
 **Melhora:**

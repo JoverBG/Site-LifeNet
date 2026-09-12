@@ -1,6 +1,12 @@
-# 📝 Manual de Instalação e Implantação — LifeNet Telecom
+# 📝 Manual de Instalação e Implantação — LifeNet
 
-Este guia orienta o passo a passo para instalar e colocar o site da **LifeNet Telecom** em produção em seu servidor de hospedagem ou rede local.
+> ⚠️ **Leia antes:** este manual descreve a instalação do **site em PHP + SQLite**, que desde
+> **2026-09-11** responde apenas pelo **painel administrativo (`/admin`) e pela API (`/api`)**.
+> A página inicial passou a ser servida por um front em **Next.js** — a instalação dele, o
+> serviço `systemd` e o roteamento do nginx estão em **`web/README.md`**, e o plano da migração
+> em `MIGRACAO-REACT-VPS.md`. Para operar o que já está no ar, use `OPERACOES.md`.
+
+Este guia orienta o passo a passo para instalar e colocar o site da **LifeNet** em produção em seu servidor de hospedagem ou rede local.
 
 ---
 
@@ -114,4 +120,4 @@ Uma vez instalado o site, use o painel administrativo para configurar:
 
 ---
 
-### 🎉 Parabéns! O site da LifeNet Telecom está pronto para voar alto!
+### 🎉 Parabéns! O site da LifeNet está pronto para voar alto!

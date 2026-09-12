@@ -18,6 +18,61 @@ Documento das medidas de segurança aplicadas no servidor de produção (`10.20.
 
 ---
 
+## Hardening aplicado (rajada 2026-09-12)
+
+Achados de uma revisão por agentes feita logo após a migração da home pro Next.js.
+Todos corrigidos e validados em produção no mesmo dia.
+
+### nginx — server block interno `10.20.2.11` estava exposto na Internet
+O bloco HTTP interno (criado em 2026-05-24 como paliativo do hairpin, hoje usado pelo Next
+para revalidar o ISR) escuta em `0.0.0.0:80`, e o nginx escolhe o server block pelo header
+`Host`. Resultado: `curl -H "Host: 10.20.2.11" http://lifenett.com.br/` respondia **200 com a
+home PHP antiga**, em HTTP puro, sem HSTS/CSP, e com PHP da raiz do webroot executando —
+justamente o que o corte pro Next tinha tirado do ar. Não havia vazamento de arquivo sensível
+(os `deny` estão replicados nos dois blocos), o problema era a exposição do legado.
+
+**Fix:** `allow 127.0.0.1; allow 10.20.2.0/24; deny all;` dentro do bloco. De fora agora dá
+**403**; de dentro da VM e da LAN continua 200, então a revalidação do Next (`SITE_API_URL=
+http://10.20.2.11/api`) segue funcionando.
+
+### nginx — `/img/` e `/uploads/` perdiam os headers de segurança
+`add_header` num `location` **substitui** todos os headers do nível acima. As duas locations
+tinham `add_header Cache-Control "public"`, então as imagens saíam sem HSTS, sem `nosniff` e
+sem `X-Frame-Options` — sendo `/uploads/` conteúdo enviado pelo admin, a falta de `nosniff`
+é a que importava. **Fix:** só `expires 7d` (que já emite `Cache-Control` sozinho), sem
+`add_header` próprio, e os headers do server block voltam a ser herdados.
+
+### nginx — bloqueios novos
+`api/_json.php` (helper dos endpoints JSON) e `api/totp.php` (biblioteca do 2FA) adicionados
+à lista de `deny` nos três server blocks. HSTS também no `novo.lifenett.com.br`.
+
+### API — URL absoluta deixou de confiar no `Host` da requisição
+`abs_url()` montava `https://{HTTP_HOST}/img/...`, e o vhost responde a qualquer `Host`:
+`curl -H "Host: evil.example" .../api/site.php` devolvia `"logo_top_url":"https://evil.example/..."`.
+Como o Next busca por IP interno, esses campos ainda vinham com `http://10.20.2.11/...` nos
+dados reais. **Fix:** constante `SITE_PUBLIC_ORIGIN` fixa em `api/_json.php`; `site_origin()`
+foi removida.
+
+### API — erro de banco/JSON virava 200 vazio ou HTML
+`json_encode()` retornando `false` (UTF-8 inválido vindo do admin) imprimia nada → **200 com
+corpo vazio**; e o `die()` do `api/db.php` cuspia HTML com a mensagem do PDO no meio de uma
+resposta JSON. **Fix:** `json_run()` embrulha cada leitura e devolve **500 JSON**; `db.php`
+reconhece a constante `LIFENET_JSON_API` e responde 500 JSON sem expor a mensagem da exceção.
+Efeito prático: o ISR do Next mantém a última versão boa em vez de publicar página vazia.
+
+### Admin — upload de logo gravava chave e valor trocados
+`admin/settings.php` chamava `execute([$imagePath, $logoKey])` num `INSERT OR REPLACE INTO
+settings (key, value)` — ou seja, gravava `key="uploads/logo_top_...png"`. Trocar o logo pelo
+painel **nunca** atualizava `logo_top`/`logo_footer` e ainda sujava a tabela. Bug desde o
+commit inicial. **Fix:** argumentos na ordem certa.
+
+### Monitor externo — falha silenciosa
+O script na VPS lia o token do Telegram de `/opt/lifebot-painel/.env` com `curl -s`: se o
+arquivo mudasse, ele seguiria logando "200" sem nunca conseguir alertar. **Fix:** sai com
+erro se token ou chat estiverem vazios, deixando o serviço vermelho no `systemctl status`.
+
+---
+
 ## Hardening aplicado (rajada 2026-05-24)
 
 ### Backup completo
@@ -97,7 +152,7 @@ Login por senha rejeitado (`Permission denied (publickey)`). `sudo` continua com
 - Removidos `index.php.bak.*` de dentro do webroot (fallback `try_files` os mascarava como 200, mas eram backups antigos sem propósito).
 - `.bak-*` do nginx movidos pra `/etc/nginx/backups/` (não ficavam mais soltos em `sites-available/`).
 
-### Acesso interno por IP (workaround temporário)
+### Acesso interno por IP (workaround temporário — restringido em 2026-09-12)
 
 Adicionado server block HTTP em nginx pra servir o site quando acessado por `http://10.20.2.11/` (Host header não bate com `lifenett.com.br`). Workaround enquanto o **hairpin SNAT no Mikrotik edge** (`190.89.178.250`) não é aplicado. Quando o hairpin for aplicado, esse server block pode ser removido.
 

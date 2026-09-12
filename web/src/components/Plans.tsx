@@ -3,7 +3,8 @@ import type { CSSProperties } from "react";
 
 /** Mesma lógica de cores do index.php: popular > mais vendido > selo custom > padrão azul. */
 function styleFor(p: Plan) {
-  const c = p.custom_badge_color || "#007BFF";
+  // Só #rrggbb: os sufixos 33/b3 (alpha) e o style dependem disso; evita CSS extra vindo do admin
+  const c = /^#[0-9a-f]{6}$/i.test(p.custom_badge_color) ? p.custom_badge_color : "#007BFF";
   const custom = !!p.custom_badge;
   if (p.popular) {
     return {
@@ -73,10 +74,10 @@ function PlanCard({ plan }: { plan: Plan }) {
         <p className="text-yellow-500 text-[11px] font-bold uppercase tracking-widest">{plan.name}</p>
       </div>
       <div className="flex justify-center gap-6 my-10">
-        <i className="fa-solid fa-wifi text-2xl" style={s.icon} />
-        <i className="fa-solid fa-bolt text-yellow-500 text-2xl" />
-        <i className="fa-solid fa-gamepad text-2xl" style={s.icon} />
-        <i className="fa-solid fa-tv text-2xl" style={s.icon} />
+        <i aria-hidden="true" className="fa-solid fa-wifi text-2xl" style={s.icon} />
+        <i aria-hidden="true" className="fa-solid fa-bolt text-yellow-500 text-2xl" />
+        <i aria-hidden="true" className="fa-solid fa-gamepad text-2xl" style={s.icon} />
+        <i aria-hidden="true" className="fa-solid fa-tv text-2xl" style={s.icon} />
       </div>
       <a href={plan.whatsapp_link} target="_blank" rel="noopener" className="w-full text-white font-black py-5 rounded-2xl transition text-center block text-xl" style={s.btn as CSSProperties}>
         Assinar Agora
@@ -99,7 +100,7 @@ export default function Plans({ plans }: { plans: Plan[] }) {
       <h2 className="text-center text-4xl md:text-5xl font-black mb-12 gs-reveal">Escolha o plano ideal para você</h2>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {plans.length > 0 ? plans.map((p) => <PlanCard key={p.id} plan={p} />) : (
-          <div className="gs-reveal bg-card border border-white/10 rounded-[2.5rem] p-10 col-span-2 text-center flex items-center justify-center">
+          <div className="gs-reveal bg-card border border-white/10 rounded-[2.5rem] p-10 lg:col-span-2 text-center flex items-center justify-center">
             <p className="text-gray-400">Nenhum plano cadastrado no momento. Verifique com nossa equipe.</p>
           </div>
         )}
@@ -115,9 +116,8 @@ export default function Plans({ plans }: { plans: Plan[] }) {
                 <div key={b.title} className="flex items-start gap-5 group">
                   <div className={`w-12 h-12 rounded-2xl ${blue ? "bg-[#007BFF]/10 text-[#007BFF] border-[#007BFF]/20" : "bg-[#FF8C00]/10 text-[#FF8C00] border-[#FF8C00]/20"} flex items-center justify-center flex-shrink-0 border group-hover:scale-110 transition`}>
                     {b.icon === "router"
-                      // eslint-disable-next-line @next/next/no-img-element
                       ? <img src="/img/icone-roteador.png" alt="Roteador" className="w-8 h-8 object-contain" />
-                      : <i className={`fa-solid ${b.icon} text-xl`} />}
+                      : <i aria-hidden="true" className={`fa-solid ${b.icon} text-xl`} />}
                   </div>
                   <div>
                     <h4 className="font-bold text-sm">{b.title}</h4>

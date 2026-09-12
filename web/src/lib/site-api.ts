@@ -70,9 +70,16 @@ export function waLink(digits: string, text?: string): string {
  * anterior continua no ar (o throw aqui não derruba o site, só o build).
  */
 export async function fetchSite(): Promise<SiteData> {
-  const res = await fetch(`${SITE_API_URL}/site.php`, { next: { revalidate: 60 } });
+  const res = await fetch(`${SITE_API_URL}/site.php`, { next: { revalidate: 60 }, signal: AbortSignal.timeout(10_000) });
   if (!res.ok) throw new Error(`site.php respondeu ${res.status}`);
-  const data = (await res.json()) as SiteData;
+  const data = (await res.json()) as Partial<SiteData>;
   if (!data?.settings || !Array.isArray(data.plans)) throw new Error("site.php sem settings/plans");
-  return data;
+  // Normaliza na borda: o render nunca vê undefined mesmo se o PHP mudar
+  return {
+    settings: data.settings,
+    plans: data.plans.filter((p) => p && p.speed && typeof p.speed.value === "string"),
+    coverage: Array.isArray(data.coverage) ? data.coverage : [],
+    carousel: Array.isArray(data.carousel) ? data.carousel : [],
+    generated_at: data.generated_at ?? new Date().toISOString(),
+  };
 }

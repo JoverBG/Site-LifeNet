@@ -13,7 +13,7 @@ export default function Coverage({ whatsappDigits }: { whatsappDigits: string })
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ query: endereco, found: 1 }),
     }).catch(() => {});
-    window.open(waLink(whatsappDigits, `Olá! Gostaria de saber se tem disponibilidade de internet para: ${endereco}`), "_blank");
+    window.open(waLink(whatsappDigits, `Olá! Gostaria de saber se tem disponibilidade de internet para: ${endereco}`), "_blank", "noopener,noreferrer");
     setQ("");
   };
 
@@ -24,7 +24,6 @@ export default function Coverage({ whatsappDigits }: { whatsappDigits: string })
         <p className="text-[12px] text-gray-400 mb-6 font-medium">Confira se sua região está atendida</p>
       </div>
       <div className="flex-grow flex items-center justify-center mb-6 transition duration-500 drop-shadow-[0_0_30px_rgba(0,123,255,0.4)]">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/img/mapa.png" alt="Mapa de Cobertura" className="w-full max-h-36 object-contain hover:scale-105 transition-transform duration-500" />
       </div>
       <div className="relative">
@@ -33,7 +32,7 @@ export default function Coverage({ whatsappDigits }: { whatsappDigits: string })
           className="w-full bg-transparent border border-white/10 rounded-xl py-3 px-4 text-sm outline-none focus:border-white/30 transition text-white placeholder-gray-500" />
         <button type="button" onClick={buscar} aria-label="Buscar cobertura"
           className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:text-[#007BFF] transition focus:outline-none">
-          <i className="fa-solid fa-magnifying-glass text-lg" />
+          <i aria-hidden="true" className="fa-solid fa-magnifying-glass text-lg" />
         </button>
       </div>
     </div>

@@ -7,7 +7,7 @@ const links = [
   { href: "#", label: "Início", active: true },
   { href: "#planos", label: "Planos" },
   { href: "#cobertura", label: "Cobertura" },
-  { href: "portal", label: "Central do Assinante", external: true },
+  { href: "", label: "Central do Assinante", external: true },
   { href: "#contato", label: "Contato" },
 ];
 
@@ -19,7 +19,6 @@ export default function Navbar({ settings }: { settings: Settings }) {
     <nav className="flex items-center justify-between px-6 md:px-12 py-4 border-b border-white/10 bg-[#050b14]/90 backdrop-blur-md sticky top-0 z-50">
       <div className="flex items-center gap-2">
         <a href="#" aria-label="LifeNet - Início">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={assetUrl(settings.logo_top)} alt="LifeNet" className="h-20 md:h-28 w-auto object-contain" />
         </a>
       </div>
@@ -35,15 +34,15 @@ export default function Navbar({ settings }: { settings: Settings }) {
       <div className="flex items-center gap-4">
         <a href={settings.instagram_link} target="_blank" rel="noopener"
           className="items-center gap-3 bg-[#1a1a1a] border border-white/10 px-6 py-3 rounded-full text-sm md:text-base font-bold transition hover:bg-gray-800 hidden sm:flex">
-          <i className="fa-brands fa-instagram text-pink-500 text-xl" /> Instagram
+          <i aria-hidden="true" className="fa-brands fa-instagram text-pink-500 text-xl" /> Instagram
         </a>
         <a href={settings.whatsapp_link} target="_blank" rel="noopener"
           className="flex items-center gap-3 bg-[#25D366] px-6 py-3 rounded-full text-sm md:text-base font-bold transition hover:bg-green-600 text-white shadow-[0_0_20px_rgba(37,211,102,0.4)]">
-          <i className="fa-brands fa-whatsapp text-xl" /> <span className="hidden sm:inline">WhatsApp</span>
+          <i aria-hidden="true" className="fa-brands fa-whatsapp text-xl" /> <span className="hidden sm:inline">WhatsApp</span>
         </a>
         <button type="button" onClick={() => setOpen((v) => !v)} aria-expanded={open} aria-controls="mobile-menu" aria-label="Menu"
           className="lg:hidden text-white ml-3 text-3xl focus:outline-none hover:text-[#007BFF] transition">
-          <i className={`fa-solid ${open ? "fa-xmark" : "fa-bars"}`} />
+          <i aria-hidden="true" className={`fa-solid ${open ? "fa-xmark" : "fa-bars"}`} />
         </button>
       </div>
 

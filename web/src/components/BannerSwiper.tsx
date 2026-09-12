@@ -7,16 +7,17 @@ import { assetUrl, waLink } from "@/lib/site-api";
 const slideCls = "relative w-full h-[260px] md:h-[380px] lg:h-[450px] rounded-[2rem] overflow-hidden";
 
 export default function BannerSwiper({ images, whatsapp }: { images: CarouselImage[]; whatsapp: string }) {
-  const banners = images.length > 0 ? images.map((i) => assetUrl(i.image_path)) : ["/img/Carrossel1.png"];
+  const banners = images.length > 0
+    ? images.map((i) => ({ key: `img-${i.id}`, src: assetUrl(i.image_path) }))
+    : [{ key: "fallback", src: "/img/Carrossel1.png" }];
   return (
     <div className="gs-reveal w-full rounded-[2rem] overflow-hidden shadow-[0_0_40px_rgba(255,140,0,0.3)]">
       <Swiper modules={[Autoplay, Pagination]} loop autoplay={{ delay: 4000, disableOnInteraction: false }} pagination={{ clickable: true }}
         className="bannerSwiper">
-        {banners.map((src) => (
-          <SwiperSlide key={src} className={slideCls}>
+        {banners.map(({ key, src }) => (
+          <SwiperSlide key={key} className={slideCls}>
             <a href={waLink(whatsapp)} target="_blank" rel="noopener" className="block w-full h-full cursor-pointer hover:opacity-95 transition">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={src} alt="Banner Promoção" className="w-full h-full object-cover" />
+              <img src={src} alt="Promoção LifeNet - fale no WhatsApp" className="w-full h-full object-cover" />
             </a>
           </SwiperSlide>
         ))}

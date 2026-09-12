@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             if (move_uploaded_file($_FILES[$logoKey]["tmp_name"], $targetFile)) {
                 $imagePath = "uploads/" . $newFileName;
-                $stmt->execute([$imagePath, $logoKey]);
+                $stmt->execute([$logoKey, $imagePath]);
             }
         }
     }

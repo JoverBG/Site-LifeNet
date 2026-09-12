@@ -27,7 +27,7 @@ export default async function Home() {
       <Particles />
       <Navbar settings={settings} />
 
-      <div className="max-w-7xl mx-auto px-4 md:px-8 py-8 space-y-12">
+      <main className="max-w-7xl mx-auto px-4 md:px-8 py-8 space-y-12">
         <BannerSwiper images={site.carousel} whatsapp={settings.whatsapp_digits} />
         <Hero whatsappLink={settings.whatsapp_link} />
         <BenefitsBar />
@@ -40,7 +40,7 @@ export default async function Home() {
         </div>
 
         <ServicesStatus />
-      </div>
+      </main>
 
       <Footer settings={settings} />
       <FloatingWhatsApp href={settings.whatsapp_link} />

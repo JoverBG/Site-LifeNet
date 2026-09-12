@@ -49,3 +49,18 @@ O `index.php` continua no webroot, intacto — o rollback é só o nginx.
 - **Inter do next/font é ~5% mais larga** que a do Google Fonts CSS → o menu ganhou `gap-6 xl:gap-8` e `whitespace-nowrap`.
 - **`.gs-reveal` só fica invisível com JS** (`html.js`): sem JS o conteúdo aparece, e o crawler vê tudo.
 - `NEXT_PUBLIC_*` é fixado no build; `SITE_API_URL` é lido em runtime (systemd).
+
+## Revisão de 2026-09-12 (4 agentes: front, PHP, infra, QA no navegador)
+
+Corrigido no mesmo dia: cor do selo do plano validada (`#rrggbb`), `carousel`/`coverage` normalizados e
+timeout de 10 s no `fetchSite`, `noopener` no popup da cobertura, `favicon.ico` e `og.png` (1200x630)
+próprios, `<main>` e `aria-hidden` nos ícones, velocímetro voltou a abrir o speedtest.net em nova aba
+como no PHP. No PHP: URL absoluta com origem FIXA (o `Host` da requisição era forjável), erros de banco/JSON
+viram 500 JSON (o ISR mantém a versão anterior), `whatsapp_digits` ignora 0 de tronco, e o admin gravava
+o upload de logo com chave/valor trocados (bug antigo). No nginx: o server block interno `10.20.2.11`
+ficou restrito à rede local (respondia pela internet via `Host:` com a home PHP antiga), `/img` e `/uploads`
+sem `add_header` próprio (apagava HSTS/nosniff herdados), `api/totp.php` bloqueado, HSTS no `novo`.
+
+Ainda em aberto (decisão do Lucas): as imagens da home somam ~8 MB (PNGs sem otimização; `mapa.png` de
+2,6 MB é também o arquivo do teste de velocidade, então não pode simplesmente encolher); `www.` responde
+200 em vez de redirecionar pro apex (canonical protege o SEO).

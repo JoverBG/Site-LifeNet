@@ -22,10 +22,10 @@ function Card({ svc }: { svc: Svc }) {
     <a href={`https://downdetector.com.br/fora-do-ar/${svc.slug}/`} target="_blank" rel="noopener"
       className={`group bg-[#050b14]/80 border ${st.border} ${st.glow} rounded-2xl p-5 flex flex-col items-center gap-4 transition duration-300 hover:-translate-y-1 hover:border-white/20 cursor-pointer`}>
       <div className="relative w-28 h-28 rounded-2xl flex items-center justify-center text-5xl" style={{ background: `${svc.color}20`, color: svc.color }}>
-        <i className={svc.icon} />
+        <i aria-hidden="true" className={svc.icon} />
         {svc.status !== "online" && (
           <span className={`absolute -top-2 -right-2 w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold ${svc.status === "offline" ? "bg-red-500 text-white" : "bg-yellow-400 text-black"}`}>
-            <i className={`fa-solid ${svc.status === "offline" ? "fa-triangle-exclamation" : "fa-clock"}`} />
+            <i aria-hidden="true" className={`fa-solid ${svc.status === "offline" ? "fa-triangle-exclamation" : "fa-clock"}`} />
           </span>
         )}
       </div>
@@ -65,7 +65,7 @@ export default function ServicesStatus() {
         </div>
         <a href="https://downdetector.com.br/" target="_blank" rel="noopener"
           className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2.5 rounded-xl transition text-xs font-bold text-gray-300 hover:text-white whitespace-nowrap">
-          <i className="fa-solid fa-arrow-up-right-from-square" /> Ver tudo no Downdetector
+          <i aria-hidden="true" className="fa-solid fa-arrow-up-right-from-square" /> Ver tudo no Downdetector
         </a>
       </div>
 
@@ -99,15 +99,15 @@ export default function ServicesStatus() {
       </div>
 
       <p className="text-center text-[11px] text-gray-600 mt-8 relative z-10">
-        {error ? (<><i className="fa-solid fa-circle-xmark text-red-400 mr-1" /> Não foi possível verificar os serviços agora.</>)
-          : !data ? (<><i className="fa-solid fa-circle-notch fa-spin mr-1" /> Verificando status dos serviços...</>)
+        {error ? (<><i aria-hidden="true" className="fa-solid fa-circle-xmark text-red-400 mr-1" /> Não foi possível verificar os serviços agora.</>)
+          : !data ? (<><i aria-hidden="true" className="fa-solid fa-circle-notch fa-spin mr-1" /> Verificando status dos serviços...</>)
           : hasIssues ? (<>
-              <i className="fa-solid fa-triangle-exclamation text-yellow-400 mr-1" />{" "}
+              <i aria-hidden="true" className="fa-solid fa-triangle-exclamation text-yellow-400 mr-1" />{" "}
               <span className="text-yellow-400 font-bold">Algum serviço não respondeu ao nosso teste de disponibilidade.</span>{" "}
               Testado da rede LifeNet às {data.checked_at} — <a href="https://downdetector.com.br" target="_blank" rel="noopener" className="text-[#007BFF] hover:underline">Conferir no Downdetector</a>
             </>)
           : (<>
-              <i className="fa-solid fa-circle-check text-green-500 mr-1" /> Os {data.total} serviços responderam normalmente. Testado da rede LifeNet às {data.checked_at} —{" "}
+              <i aria-hidden="true" className="fa-solid fa-circle-check text-green-500 mr-1" /> Os {data.total} serviços responderam normalmente. Testado da rede LifeNet às {data.checked_at} —{" "}
               <a href="https://downdetector.com.br" target="_blank" rel="noopener" className="text-[#007BFF] hover:underline">Conferir no Downdetector</a>
             </>)}
       </p>

@@ -38,7 +38,7 @@ getent hosts www.lifenett.com.br            # esperado: 190.89.178.250
 ### 2. A máquina interna está viva?
 ```bash
 ping -c2 10.20.2.11
-curl -I http://10.20.2.11/                  # bate direto no nginx, sem passar pela borda
+curl -I http://10.20.2.11/                  # bate direto no nginx, sem passar pela borda (só responde de dentro da 10.20.2.0/24)
 ```
 - **Não responde nada (nem ping)** → a máquina (VM 104) provavelmente está **desligada ou travada**. Vá pro passo 3.
 - **Responde aqui mas não no público** → problema na borda (CCR1036 / DNAT / hairpin). Veja a seção de rede no SECURITY/memória.

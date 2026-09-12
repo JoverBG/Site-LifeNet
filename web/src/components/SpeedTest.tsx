@@ -9,8 +9,8 @@ export default function SpeedTest({ speedtestUrl }: { speedtestUrl: string }) {
   const [state, setState] = useState<"idle" | "running" | "done">("idle");
   const busy = useRef(false);
 
-  const run = (e: React.MouseEvent) => {
-    e.preventDefault();
+  // Igual ao PHP: o clique roda o teste local E abre o speedtest.net em nova aba (href do admin)
+  const run = () => {
     if (busy.current) return;
     busy.current = true;
     setState("running"); setRotation(210); setVal("---");
@@ -57,9 +57,9 @@ export default function SpeedTest({ speedtestUrl }: { speedtestUrl: string }) {
           <div className="text-[10px] text-gray-500 font-bold uppercase">Mbps</div>
         </div>
       </div>
-      <a href={speedtestUrl} onClick={run} aria-disabled={state === "running"}
+      <a href={speedtestUrl} target="_blank" rel="noopener" onClick={run} aria-disabled={state === "running"}
         className="w-full bg-[#007BFF] hover:bg-blue-600 text-white font-bold py-3.5 rounded-xl transition shadow-[0_0_15px_rgba(0,123,255,0.4)] text-sm uppercase tracking-widest flex items-center justify-center gap-2">
-        {state === "done" ? (<><i className="fa-solid fa-rotate-right" /> Refazer</>) : (<><i className="fa-solid fa-play text-[10px]" /> Iniciar Teste</>)}
+        {state === "done" ? (<><i aria-hidden="true" className="fa-solid fa-rotate-right" /> Refazer</>) : (<><i aria-hidden="true" className="fa-solid fa-play text-[10px]" /> Iniciar Teste</>)}
       </a>
     </div>
   );

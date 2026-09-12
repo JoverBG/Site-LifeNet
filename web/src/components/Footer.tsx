@@ -8,7 +8,6 @@ export default function Footer({ settings }: { settings: Settings }) {
       <div className="max-w-7xl mx-auto px-6 md:px-12">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
           <div>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={assetUrl(s.logo_footer)} alt="LifeNet" className="h-14 mb-6" />
             <p className="text-xs text-gray-500 leading-relaxed pr-6">Sua melhor escolha em conectividade. Fibra Óptica real, alta performance e o atendimento humano que você sempre quis.</p>
           </div>
@@ -32,9 +31,9 @@ export default function Footer({ settings }: { settings: Settings }) {
           <div>
             <h4 className="font-bold text-xs uppercase tracking-[0.3em] text-gray-400 mb-6">Fale Conosco</h4>
             <ul className="text-xs text-gray-500 space-y-4">
-              <li className="flex items-center gap-3"><i className="fa-brands fa-whatsapp text-[#25D366] text-lg" /> {s.whatsapp_number}</li>
-              <li className="flex items-center gap-3"><i className="fa-regular fa-envelope text-[#007BFF] text-lg" /> {s.contact_email}</li>
-              <li className="flex items-start gap-3"><i className="fa-solid fa-location-dot text-[#007BFF] text-lg mt-0.5" /> {s.contact_address}</li>
+              <li className="flex items-center gap-3"><i aria-hidden="true" className="fa-brands fa-whatsapp text-[#25D366] text-lg" /> {s.whatsapp_number}</li>
+              <li className="flex items-center gap-3"><i aria-hidden="true" className="fa-regular fa-envelope text-[#007BFF] text-lg" /> {s.contact_email}</li>
+              <li className="flex items-start gap-3"><i aria-hidden="true" className="fa-solid fa-location-dot text-[#007BFF] text-lg mt-0.5" /> {s.contact_address}</li>
             </ul>
           </div>
         </div>

@@ -8,7 +8,6 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: { sans: ["var(--font-inter)", "Inter", "sans-serif"] },
-      colors: { brand: { blue: "#007BFF", orange: "#FF8C00", bg: "#050b14" } },
     },
   },
   plugins: [],

@@ -31,9 +31,9 @@ export const metadata: Metadata = {
     siteName: "LifeNet",
     title: "LifeNet | Conexão que transforma",
     description: "Internet fibra óptica em Pontal do Araguaia - MT. Planos de até 1 Giga com instalação grátis e suporte 24h.",
-    images: [{ url: "/img/logo.png", alt: "LifeNet" }],
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: "LifeNet - Internet Fibra Óptica" }],
   },
-  twitter: { card: "summary_large_image", title: "LifeNet | Conexão que transforma", images: ["/img/logo.png"] },
+  twitter: { card: "summary_large_image", title: "LifeNet | Conexão que transforma", images: ["/og.png"] },
   icons: { icon: "/img/logo.png", apple: "/img/logo.png" },
   robots: { index: true, follow: true },
 };
@@ -42,7 +42,7 @@ export const viewport: Viewport = { themeColor: "#050b14", width: "device-width"
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" className={inter.variable}>
+    <html lang="pt-BR" className={inter.variable} suppressHydrationWarning>
       <head>
         {/* Marca que há JS antes da primeira pintura: só então o .gs-reveal começa invisível */}
         <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />

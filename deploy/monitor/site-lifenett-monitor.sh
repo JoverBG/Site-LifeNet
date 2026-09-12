@@ -10,6 +10,10 @@ STATE_DIR=/var/lib/site-monitor
 mkdir -p "$STATE_DIR"
 TOKEN=$(grep -E '^PAINEL_TELEGRAM_BOT_TOKEN=' "$ENV_FILE" | cut -d= -f2- | tr -d '"' )
 CHAT=$(grep -E '^PAINEL_TELEGRAM_CHAT_ID=' "$ENV_FILE" | cut -d= -f2- | tr -d '"' )
+if [[ -z "$TOKEN" || -z "$CHAT" ]]; then
+  echo "ERRO: token/chat do Telegram vazios em $ENV_FILE - monitor sem canal de alerta" >&2
+  exit 1   # deixa o service vermelho no systemctl status
+fi
 
 declare -A ALVOS=(
   [home]="https://lifenett.com.br/"

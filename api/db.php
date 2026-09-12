@@ -189,6 +189,14 @@ try {
     try { $db->exec("CREATE INDEX IF NOT EXISTS idx_pv_visitor ON page_views(visitor_id)"); } catch (Exception $e) { }
 
 } catch(PDOException $e) {
-    die("Erro ao conectar com o banco de dados: " . $e->getMessage());
+    error_log('db.php: ' . $e->getMessage());
+    if (defined('LIFENET_JSON_API')) {
+        http_response_code(500);
+        header('Content-Type: application/json; charset=utf-8');
+        header('Cache-Control: no-store');
+        echo json_encode(['error' => 'database unavailable']);
+        exit;
+    }
+    die("Erro ao conectar com o banco de dados.");
 }
 ?>

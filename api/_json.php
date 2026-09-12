@@ -11,7 +11,14 @@ if (basename($_SERVER['SCRIPT_FILENAME'] ?? '') === basename(__FILE__)) {
     exit;
 }
 
+// Sinaliza pro db.php que a saída tem que ser JSON (erro de conexão vira 500 JSON, não HTML)
+define('LIFENET_JSON_API', true);
 require_once __DIR__ . '/db.php';
+
+// Origem pública FIXA: não confiar no Host da requisição (qualquer Host chega no vhost)
+// nem no IP interno usado pelo Next na revalidação.
+const SITE_PUBLIC_ORIGIN = 'https://lifenett.com.br';
+const DEFAULT_WHATSAPP   = '5566992299589';
 
 /**
  * Prepara a resposta: só GET/HEAD, JSON, CORS liberado pra leitura
@@ -32,13 +39,30 @@ function json_begin(int $maxAge = 60): void {
         exit;
     }
     if ($method !== 'GET' && $method !== 'HEAD') {
+        header('Allow: GET, HEAD, OPTIONS');
         json_error(405, 'method not allowed');
     }
 }
 
 function json_out($data): void {
-    echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    try {
+        $body = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE | JSON_THROW_ON_ERROR);
+    } catch (Throwable $e) {
+        error_log('api json_out: ' . $e->getMessage());
+        json_error(500, 'encode failed');
+    }
+    echo $body;
     exit;
+}
+
+/** Roda o leitor dentro de try/catch: erro de banco vira 500 JSON (o Next mantém a versão anterior). */
+function json_run(callable $fn): void {
+    try {
+        json_out($fn());
+    } catch (Throwable $e) {
+        error_log('api ' . basename($_SERVER['SCRIPT_FILENAME'] ?? '') . ': ' . $e->getMessage());
+        json_error(500, 'internal error');
+    }
 }
 
 function json_error(int $code, string $msg): void {
@@ -48,21 +72,16 @@ function json_error(int $code, string $msg): void {
     exit;
 }
 
-/** Origem pública do site (https://lifenett.com.br), pra montar URLs absolutas de imagem. */
-function site_origin(): string {
-    $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
-        || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
-    $host = $_SERVER['HTTP_HOST'] ?? 'lifenett.com.br';
-    return ($https ? 'https' : 'http') . '://' . $host;
-}
-
 /**
  * Número de WhatsApp como o wa.me exige: só dígitos, com DDI.
  * O admin aceita "66 9 9229-9589" (sem 55) e o index.php usa cru; aqui
  * normaliza e prefixa 55 quando vier só DDD+número (10 ou 11 dígitos).
  */
 function whatsapp_digits(string $raw): string {
-    $d = preg_replace('/\D/', '', $raw);
+    $d = ltrim(preg_replace('/\D/', '', $raw), '0'); // DDI/DDD nunca começam com 0 (tronco)
+    if ($d === '') {
+        return DEFAULT_WHATSAPP;
+    }
     $len = strlen($d);
     if ($len === 10 || $len === 11) {
         $d = '55' . $d;
@@ -75,7 +94,7 @@ function abs_url(string $path): string {
     if ($path === '' || preg_match('#^https?://#i', $path)) {
         return $path;
     }
-    return site_origin() . '/' . ltrim($path, '/');
+    return SITE_PUBLIC_ORIGIN . '/' . ltrim($path, '/');
 }
 
 // ---- Leitores (mesmas consultas e mesmos defaults do index.php) ----
@@ -83,7 +102,7 @@ function abs_url(string $path): string {
 /** Só as chaves que o site público usa; nada além disso sai daqui. */
 function read_settings(PDO $db): array {
     $defaults = [
-        'whatsapp_number'      => '5566992928124',
+        'whatsapp_number'      => DEFAULT_WHATSAPP,
         'instagram_link'       => 'https://www.instagram.com/lifenetmt/',
         'logo_top'             => 'img/logotopo.png',
         'logo_footer'          => 'img/logorodape.png',

@@ -7,17 +7,28 @@ import { assetUrl, waLink } from "@/lib/site-api";
 const slideCls = "relative w-full h-[260px] md:h-[380px] lg:h-[450px] rounded-[2rem] overflow-hidden";
 
 export default function BannerSwiper({ images, whatsapp }: { images: CarouselImage[]; whatsapp: string }) {
-  const banners = images.length > 0
-    ? images.map((i) => ({ key: `img-${i.id}`, src: assetUrl(i.image_path) }))
-    : [{ key: "fallback", src: "/img/Carrossel1.png" }];
+  // Banners cadastrados no admin vão como estão (o admin não converte upload).
+  // O banner padrão tem WebP: 71 KB no celular e 183 KB no desktop, contra 1,9 MB do PNG.
+  const banners: { key: string; src: string; webp?: string; sizes?: string }[] =
+    images.length > 0
+      ? images.map((i) => ({ key: `img-${i.id}`, src: assetUrl(i.image_path) }))
+      : [{
+          key: "fallback",
+          src: "/img/Carrossel1.png",
+          webp: "/img/Carrossel1-sm.webp 1100w, /img/Carrossel1.webp 2173w",
+          sizes: "(max-width: 768px) 100vw, 1280px",
+        }];
   return (
     <div className="gs-reveal w-full rounded-[2rem] overflow-hidden shadow-[0_0_40px_rgba(255,140,0,0.3)]">
       <Swiper modules={[Autoplay, Pagination]} loop autoplay={{ delay: 4000, disableOnInteraction: false }} pagination={{ clickable: true }}
         className="bannerSwiper">
-        {banners.map(({ key, src }) => (
+        {banners.map(({ key, src, webp, sizes }) => (
           <SwiperSlide key={key} className={slideCls}>
             <a href={waLink(whatsapp)} target="_blank" rel="noopener" className="block w-full h-full cursor-pointer hover:opacity-95 transition">
-              <img src={src} alt="Promoção LifeNet - fale no WhatsApp" className="w-full h-full object-cover" />
+              <picture className="block w-full h-full">
+                {webp && <source type="image/webp" srcSet={webp} sizes={sizes} />}
+                <img src={src} alt="Promoção LifeNet - fale no WhatsApp" className="w-full h-full object-cover" />
+              </picture>
             </a>
           </SwiperSlide>
         ))}

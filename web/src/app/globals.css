@@ -28,6 +28,15 @@ body {
    visível, e o crawler sempre vê tudo. */
 html.js .gs-reveal { opacity: 0; transform: translateY(30px); }
 
+/* Fundo do site. O WebP tem 121 KB contra 1,7 MB do PNG; a primeira linha é a
+   reserva para navegador sem image-set(), que continua recebendo o PNG.
+   Tamanho/posição continuam vindo das classes utilitárias no JSX. */
+.bg-hero {
+  background-image: url("/img/fundo.png");
+  background-image: image-set(url("/img/fundo.webp") type("image/webp"),
+                              url("/img/fundo.png") type("image/png"));
+}
+
 #particles-canvas {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
   z-index: -1; opacity: 0.4;

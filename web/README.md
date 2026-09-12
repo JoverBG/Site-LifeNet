@@ -61,6 +61,22 @@ o upload de logo com chave/valor trocados (bug antigo). No nginx: o server block
 ficou restrito à rede local (respondia pela internet via `Host:` com a home PHP antiga), `/img` e `/uploads`
 sem `add_header` próprio (apagava HSTS/nosniff herdados), `api/totp.php` bloqueado, HSTS no `novo`.
 
-Ainda em aberto (decisão do Lucas): as imagens da home somam ~8 MB (PNGs sem otimização; `mapa.png` de
-2,6 MB é também o arquivo do teste de velocidade, então não pode simplesmente encolher); `www.` responde
-200 em vez de redirecionar pro apex (canonical protege o SEO).
+Ainda em aberto (decisão do Lucas): `www.` responde 200 em vez de redirecionar pro apex (canonical
+protege o SEO).
+
+## Imagens (2026-09-12)
+
+Banner e fundo passaram a WebP, com o PNG mantido no disco como reserva:
+
+| Arquivo | Antes | Depois | Onde |
+|---|---|---|---|
+| `img/fundo.png` → `img/fundo.webp` | 1,7 MB | 121 KB | classe `.bg-hero` no `globals.css`, com `image-set()` e PNG de reserva |
+| `img/Carrossel1.png` → `.webp` | 1,9 MB | 183 KB (desktop) / 71 KB (celular, `Carrossel1-sm.webp`) | `<picture>` no `BannerSwiper`, PNG no `<img>` de reserva |
+
+Home caiu de **8,4 MB para 4,55 MB** no desktop e 4,44 MB no celular. Qualidade WebP 85 (banner, tem texto)
+e 78 (fundo, exibido a 30% de opacidade); comparação lado a lado não mostrou diferença visível.
+Banner cadastrado pelo admin **não** é convertido (o upload vai como veio) — só o banner padrão tem WebP.
+
+O que ainda pesa: `mapa.png` 2,6 MB (é o arquivo que o teste de velocidade baixa, além de ilustrar a
+cobertura num card de 144 px — daria pra separar as duas funções), os três logos (~1,1 MB somados, PNG com
+transparência) e `icone-roteador.png` 275 KB. `fundo2.png` (1,6 MB) não é usado por ninguém.

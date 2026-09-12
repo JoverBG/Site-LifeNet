@@ -5,7 +5,7 @@ export const metadata: Metadata = { title: "Página não encontrada | LifeNet", 
 export default function NotFound() {
   return (
     <main className="min-h-screen flex flex-col items-center justify-center text-center px-6">
-      <div className="fixed inset-0 w-full h-full bg-[url('/img/fundo.png')] bg-cover bg-center bg-no-repeat -z-20 opacity-30 pointer-events-none" />
+      <div className="fixed inset-0 w-full h-full bg-hero bg-cover bg-center bg-no-repeat -z-20 opacity-30 pointer-events-none" />
       <img src="/img/logo.png" alt="LifeNet" className="w-40 md:w-56 object-contain drop-shadow-[0_0_40px_rgba(0,123,255,0.5)] mb-8" />
       <p className="text-[#007BFF] font-bold tracking-[0.3em] text-xs uppercase mb-3">Erro 404</p>
       <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-4 leading-tight">Página não encontrada</h1>

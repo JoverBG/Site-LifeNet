@@ -23,7 +23,7 @@ export default async function Home() {
 
   return (
     <>
-      <div className="fixed inset-0 w-full h-full bg-[url('/img/fundo.png')] bg-cover bg-center bg-no-repeat -z-20 opacity-30 pointer-events-none" />
+      <div className="fixed inset-0 w-full h-full bg-hero bg-cover bg-center bg-no-repeat -z-20 opacity-30 pointer-events-none" />
       <Particles />
       <Navbar settings={settings} />
 

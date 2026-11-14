@@ -1,21 +1,26 @@
+import RotatingWord from "./RotatingWord";
+
 export default function Hero({ whatsappLink }: { whatsappLink: string }) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center gs-reveal">
       <div>
         <p className="text-[#007BFF] font-bold tracking-[0.3em] text-xs mb-4 uppercase">Internet Fibra Óptica</p>
-        <h1 className="text-5xl md:text-7xl font-extrabold mb-6 leading-[1.1] text-white">Conexão que<br /> transforma</h1>
+        <h1 className="text-5xl md:text-7xl font-extrabold mb-6 leading-[1.1] text-white">Conexão que<br /> <RotatingWord words={["transforma", "acelera", "não cai", "conecta"]} /></h1>
         <p className="text-gray-400 text-lg mb-8 max-w-md leading-relaxed">
           Ultravelocidade, estabilidade e atendimento que você merece. Conecte-se com o futuro com a{" "}
           <span className="text-[#007BFF] font-bold">LifeNet</span>.
         </p>
         <div className="flex flex-wrap items-center gap-4 mb-10">
-          <a href="#planos" className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 px-10 rounded-xl flex items-center gap-2 transition shadow-[0_0_20px_rgba(0,123,255,0.4)] transform hover:-translate-y-1">
+          <a href="#planos" data-magnetic className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 px-10 rounded-xl flex items-center gap-2 shadow-[0_0_20px_rgba(0,123,255,0.4)]">
             Ver Planos <i aria-hidden="true" className="fa-solid fa-chevron-right text-xs" />
           </a>
-          <a href={whatsappLink} target="_blank" rel="noopener" className="bg-transparent border border-white/20 hover:bg-white/5 text-white font-bold py-3.5 px-8 rounded-xl flex items-center gap-2 transition transform hover:-translate-y-1">
+          <a href={whatsappLink} target="_blank" rel="noopener" data-magnetic className="bg-transparent border border-white/20 hover:bg-white/5 text-white font-bold py-3.5 px-8 rounded-xl flex items-center gap-2">
             <i aria-hidden="true" className="fa-brands fa-whatsapp text-green-500 text-xl" /> Falar no WhatsApp
           </a>
         </div>
+        <a href="#planos" className="hidden md:inline-flex items-center gap-4 text-[10px] font-bold uppercase tracking-[0.35em] text-gray-500 hover:text-white transition">
+          <span className="scroll-hint-line" aria-hidden="true" /> Role para explorar
+        </a>
       </div>
       <div className="relative flex justify-center items-center h-[350px] md:h-[450px]">
         <div className="absolute inset-0 bg-[#007BFF] opacity-10 blur-[120px] rounded-full animate-pulse" />

@@ -58,10 +58,24 @@ function styleFor(p: Plan) {
   };
 }
 
+/** "#rrggbb" → "r g b" pro --glow do .spotlight */
+function rgbTriplet(hex: string) {
+  const n = parseInt(hex.slice(1), 16);
+  return `${(n >> 16) & 255} ${(n >> 8) & 255} ${n & 255}`;
+}
+
+function glowFor(p: Plan) {
+  if (p.popular) return "#FF8C00";
+  if (p.best_seller) return "#22c55e";
+  if (p.custom_badge && /^#[0-9a-f]{6}$/i.test(p.custom_badge_color)) return p.custom_badge_color;
+  return "#007BFF";
+}
+
 function PlanCard({ plan }: { plan: Plan }) {
   const s = styleFor(plan);
+  const card = { ...s.card, "--glow": rgbTriplet(glowFor(plan)) } as unknown as CSSProperties;
   return (
-    <div className="gs-reveal bg-card border rounded-[2.5rem] p-10 relative flex flex-col justify-between transform lg:-translate-y-6 shadow-2xl hover:-translate-y-9 transition duration-500 z-10" style={s.card as CSSProperties}>
+    <div className="spotlight gs-reveal bg-card border rounded-[2.5rem] p-10 relative flex flex-col justify-between transform lg:-translate-y-6 shadow-2xl hover:-translate-y-9 transition duration-500 z-10" style={card}>
       <div className="absolute top-0 right-0 text-white text-[10px] font-black px-6 py-2.5 rounded-bl-2xl rounded-tr-[2.5rem] uppercase tracking-widest leading-tight text-center" style={s.badge as CSSProperties}>
         {s.badgeText.map((t, i) => (<span key={i}>{i > 0 && <br />}{t}</span>))}
       </div>
@@ -79,7 +93,7 @@ function PlanCard({ plan }: { plan: Plan }) {
         <i aria-hidden="true" className="fa-solid fa-gamepad text-2xl" style={s.icon} />
         <i aria-hidden="true" className="fa-solid fa-tv text-2xl" style={s.icon} />
       </div>
-      <a href={plan.whatsapp_link} target="_blank" rel="noopener" className="w-full text-white font-black py-5 rounded-2xl transition text-center block text-xl" style={s.btn as CSSProperties}>
+      <a href={plan.whatsapp_link} target="_blank" rel="noopener" data-magnetic data-cursor="Assinar" className="w-full text-white font-black py-5 rounded-2xl text-center block text-xl" style={s.btn as CSSProperties}>
         Assinar Agora
       </a>
     </div>
@@ -105,7 +119,7 @@ export default function Plans({ plans }: { plans: Plan[] }) {
           </div>
         )}
 
-        <div className="gs-reveal relative bg-card border border-white/5 rounded-[2.5rem] p-10 flex flex-col justify-center">
+        <div className="spotlight gs-reveal relative bg-card border border-white/5 rounded-[2.5rem] p-10 flex flex-col justify-center">
           <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#050b14] px-6 py-2 rounded-full border border-white/5 shadow-2xl z-10">
             <p className="text-[#007BFF] font-bold text-[11px] tracking-[0.3em] uppercase m-0">Benefícios</p>
           </div>

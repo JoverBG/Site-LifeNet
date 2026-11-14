@@ -1,6 +1,8 @@
 import { fetchSite } from "@/lib/site-api";
 import Particles from "@/components/Particles";
 import RevealOnScroll from "@/components/RevealOnScroll";
+import Effects from "@/components/Effects";
+import Marquee from "@/components/Marquee";
 import TrackBeacon from "@/components/TrackBeacon";
 import Navbar from "@/components/Navbar";
 import BannerSwiper from "@/components/BannerSwiper";
@@ -30,6 +32,7 @@ export default async function Home() {
       <main className="max-w-7xl mx-auto px-4 md:px-8 py-8 space-y-12">
         <BannerSwiper images={site.carousel} whatsapp={settings.whatsapp_digits} />
         <Hero whatsappLink={settings.whatsapp_link} />
+        <Marquee />
         <BenefitsBar />
         <Plans plans={site.plans} />
 
@@ -45,6 +48,7 @@ export default async function Home() {
       <Footer settings={settings} />
       <FloatingWhatsApp href={settings.whatsapp_link} />
       <RevealOnScroll />
+      <Effects />
       <TrackBeacon />
     </>
   );

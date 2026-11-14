@@ -56,3 +56,99 @@ html.js .gs-reveal { opacity: 0; transform: translateY(30px); }
 .services-prev:hover, .services-next:hover { background: rgba(255,255,255,0.2); }
 .services-prev::after, .services-next::after { font-size: 0.875rem !important; }
 .services-pagination { bottom: 0 !important; margin-top: 1rem; }
+
+/* ===========================================================================
+   Efeitos inspirados no tirvu.com.br (ver components/Effects.tsx)
+   =========================================================================== */
+:root {
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* --- Palavra rotativa do título (RotatingWord) --- */
+.rotating-word, .rotating-word-static {
+  background: linear-gradient(90deg, #007BFF 0%, #38bdf8 45%, #FF8C00 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.rotating-word { display: inline-grid; vertical-align: bottom; }
+.rotating-word__item {
+  grid-area: 1 / 1;
+  background: inherit; -webkit-background-clip: text; background-clip: text;
+  padding-bottom: 0.08em; /* não corta o "ç" e o "g" */
+}
+.rotating-word__item[data-state="out"] {
+  opacity: 0; transform: translateY(-0.35em); filter: blur(12px);
+  transition: opacity .5s var(--ease-out-expo), transform .7s var(--ease-out-expo), filter .6s var(--ease-out-expo);
+}
+.rotating-word__item[data-state="in"] { animation: word-in .9s var(--ease-out-expo) both; }
+@keyframes word-in {
+  from { opacity: 0; transform: translateY(0.35em); filter: blur(12px); }
+  to   { opacity: 1; transform: none; filter: blur(0); }
+}
+
+/* --- Faixa de palavras (Marquee) --- */
+.marquee-track { animation: marquee 38s linear infinite; }
+.marquee-track:hover { animation-play-state: paused; }
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.marquee-solid {
+  background: linear-gradient(180deg, #ffffff 30%, #7aa7d9 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.marquee-outline { color: transparent; -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.35); }
+.marquee-dot {
+  width: 14px; height: 14px; border-radius: 999px; flex-shrink: 0;
+  background: #007BFF; box-shadow: 0 0 0 5px rgba(0, 123, 255, 0.18), 0 0 18px rgba(0, 123, 255, 0.8);
+}
+.marquee-track > div > span:nth-child(even) .marquee-dot {
+  background: #FF8C00; box-shadow: 0 0 0 5px rgba(255, 140, 0, 0.18), 0 0 18px rgba(255, 140, 0, 0.8);
+}
+
+/* --- Brilho que segue o mouse (.spotlight; cor em --glow como "r g b") --- */
+.spotlight { --mx: 50%; --my: 50%; --glow: 0 123 255; isolation: isolate; }
+.spotlight::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: -1;
+  background: radial-gradient(420px circle at var(--mx) var(--my), rgb(var(--glow) / 0.16), transparent 60%);
+  opacity: 0; transition: opacity .4s;
+}
+.spotlight:hover::before { opacity: 1; }
+
+/* --- Botões magnéticos: o transform vem do JS, aqui só a mola --- */
+[data-magnetic] { transition: transform .5s var(--ease-out-expo), background-color .2s, box-shadow .3s; will-change: transform; }
+
+/* --- Cursor próprio (só mouse; some o cursor do sistema quando o nosso está ativo) --- */
+.cursor-dot, .cursor-ring { position: absolute; border-radius: 999px; transition: opacity .3s; }
+.cursor-dot {
+  width: 6px; height: 6px; margin: -3px 0 0 -3px; background: #38bdf8;
+  box-shadow: 0 0 12px rgba(0, 123, 255, 0.9);
+}
+.cursor-ring {
+  width: 38px; height: 38px; margin: -19px 0 0 -19px;
+  display: grid; place-items: center; border: 1px solid rgba(0, 123, 255, 0.55);
+  transition: width .45s var(--ease-out-expo), height .45s var(--ease-out-expo), margin .45s var(--ease-out-expo),
+              scale .25s var(--ease-out-expo), background-color .3s, border-color .3s, opacity .3s;
+}
+.cursor-ring[data-hover] { width: 56px; height: 56px; margin: -28px 0 0 -28px; background: rgba(0, 123, 255, 0.1); border-color: rgba(0, 123, 255, 0.8); }
+.cursor-ring[data-label] { width: 92px; height: 92px; margin: -46px 0 0 -46px; background: #FF8C00; border-color: transparent; }
+.cursor-ring[data-down] { scale: .85; }
+.cursor-label { font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #fff; opacity: 0; transition: opacity .2s; }
+.cursor-ring[data-label] .cursor-label { opacity: 1; }
+@media (pointer: fine) {
+  html.has-cursor, html.has-cursor a, html.has-cursor button { cursor: none; }
+  html.has-cursor input, html.has-cursor textarea, html.has-cursor select { cursor: auto; }
+}
+
+/* --- "Role para explorar" --- */
+.scroll-hint-line { position: relative; width: 1px; height: 44px; overflow: hidden; background: rgba(255, 255, 255, 0.12); }
+.scroll-hint-line::after {
+  content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent, #007BFF);
+  animation: scroll-hint 1.8s var(--ease-out-expo) infinite;
+}
+@keyframes scroll-hint { from { transform: translateY(-100%); } to { transform: translateY(200%); } }
+
+/* Rolagem suave (Lenis) */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: hidden; }
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track, .scroll-hint-line::after { animation: none; }
+}

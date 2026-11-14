@@ -30,8 +30,20 @@ ssh lifenet@10.20.2.11 'sudo systemctl restart lifenett-web'
 curl -sI https://lifenett.com.br/ | head -1
 ```
 
-Teste antes do corte: o mesmo build responde em `https://novo.lifenett.com.br/`
-(`noindex`, certificado próprio, mesmo snippet do nginx).
+⚠️ O `novo.lifenett.com.br` usava o **mesmo** Next da produção (mesmo snippet, porta 3100):
+subir com a receita acima publica nos dois.
+
+## Prévia em novo.lifenett.com.br (sem tocar na produção)
+
+```bash
+git checkout <branch-a-testar>
+bash web/deploy/deploy-preview.sh
+```
+
+Sobe uma segunda instância (`lifenett-web-preview`, `/opt/lifenett-web-preview`, porta 3101) e, na
+primeira vez, troca no server block do `novo` o include pra `snippets/lifenett-next-preview.conf`
+(cópia do snippet da produção apontando pra 3101; backup em `/etc/nginx/backups/` + `nginx -t`).
+`lifenett.com.br` segue na 3100. Como desfazer está no cabeçalho do script.
 
 ## Rollback
 

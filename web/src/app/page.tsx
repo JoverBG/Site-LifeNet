@@ -57,7 +57,7 @@ export default async function Home() {
           <SectionHead n="06" eyebrow="Atendimento" title="Tudo o que você precisa, a um clique." mark="clique."
             sub="Teste sua velocidade, confira a cobertura no seu bairro ou fale direto com a nossa equipe." className="mb-14" />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
-            <div data-reveal><SpeedTest speedtestUrl={settings.speedtest_url} /></div>
+            <div data-reveal><SpeedTest speedtestUrl={settings.speedtest_url} whatsappDigits={settings.whatsapp_digits} plans={site.plans} /></div>
             <div data-reveal data-delay="100"><Coverage whatsappDigits={settings.whatsapp_digits} /></div>
             <div data-reveal data-delay="200"><Contact whatsappLink={settings.whatsapp_link} instagram={settings.instagram_link} email={settings.contact_email} /></div>
           </div>

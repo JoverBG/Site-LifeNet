@@ -1188,6 +1188,55 @@ html.menu-open, html.menu-open body { overflow: hidden; }
 }
 @keyframes speedo-pulse { 50% { stroke: rgba(56, 189, 248, 0.25); } }
 
+/* --- Teste de velocidade (cartão completo) --- */
+.st { container-type: inline-size; gap: 1.15rem; }
+.st .speedo { max-width: 14.5rem; margin-top: .6rem; }
+.st .speedo__fill { transition: none; } /* o ponteiro já é suavizado no JS */
+.st .speedo__value { top: 38%; }
+.speedo__label { font-size: 8.5px; font-weight: 700; fill: rgba(255, 255, 255, 0.3); transition: fill .3s; }
+.speedo__label.is-lit { fill: #7dd3fc; }
+.st-phase { position: absolute; left: 50%; bottom: -.2rem; translate: -50% 0; display: inline-flex; align-items: center; gap: .35rem; padding: .25rem .65rem; border-radius: 99px; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.07); white-space: nowrap; font-style: normal; font-size: 10px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: #38bdf8; }
+.st.is-upload .st-phase { color: #FF8C00; }
+.st.is-idle .st-phase, .st.is-error .st-phase { color: #6b7280; }
+.st-phase__dot { width: 6px; height: 6px; border-radius: 99px; background: currentColor; box-shadow: 0 0 8px currentColor; }
+.st.is-upload .speedo__knob { stroke: #FF8C00; filter: drop-shadow(0 0 8px rgba(255, 140, 0, 0.95)); }
+
+.st-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .45rem; }
+@container (max-width: 330px) { .st-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.st-stat { min-width: 0; padding: .6rem .55rem; border-radius: .9rem; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); transition: border-color .3s, background-color .3s; }
+.st-stat dt { display: flex; align-items: center; gap: .3rem; font-size: 9px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: #6b7280; white-space: nowrap; }
+.st-stat dt i { font-size: 9px; color: #38bdf8; }
+.st-stat:nth-child(2) dt i { color: #FF8C00; }
+.st-stat dd { margin-top: .3rem; font-size: 1.05rem; font-weight: 900; color: #4b5563; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.st-stat dd small { font-size: 9px; font-weight: 700; color: #6b7280; }
+.st-stat.has-value dd { color: #fff; }
+.st-stat.is-on { border-color: rgba(56, 189, 248, 0.45); background: rgba(56, 189, 248, 0.07); }
+.st-stat:nth-child(2).is-on { border-color: rgba(255, 140, 0, 0.45); background: rgba(255, 140, 0, 0.07); }
+
+.st-note { display: flex; gap: .5rem; font-size: .74rem; line-height: 1.45; color: #9ca3af; }
+.st-note i { margin-top: .15rem; color: #38bdf8; }
+.st-note--err i { color: #f87171; }
+.st-plan__q { font-size: .72rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: #9ca3af; }
+.st-plan__chips { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
+.st-chip { padding: .4rem .8rem; border-radius: 99px; font-size: .75rem; font-weight: 800; color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.12); background: rgba(255, 255, 255, 0.03); transition: border-color .25s, background-color .25s, color .25s; }
+.st-chip:hover { border-color: rgba(56, 189, 248, 0.5); }
+.st-chip.is-on { color: #fff; border-color: #38bdf8; background: rgba(56, 189, 248, 0.15); }
+.st-verdict { margin-top: .7rem; }
+.st-verdict__bar { display: block; height: 6px; border-radius: 99px; background: rgba(255, 255, 255, 0.07); overflow: hidden; }
+.st-verdict__bar span { display: block; height: 100%; border-radius: inherit; transition: width .8s var(--ease-out-expo); }
+.st-verdict p { margin-top: .45rem; font-size: .76rem; line-height: 1.4; color: #d1d5db; }
+.st-verdict.tone-good .st-verdict__bar span { background: #22c55e; box-shadow: 0 0 10px rgba(34, 197, 94, 0.6); }
+.st-verdict.tone-warn .st-verdict__bar span { background: #f59e0b; }
+.st-verdict.tone-bad .st-verdict__bar span { background: #ef4444; }
+
+.st-actions { margin-top: auto; display: flex; flex-direction: column; gap: .7rem; }
+.st-actions .svc-btn { margin-top: 0; }
+.st-links { display: flex; flex-wrap: wrap; justify-content: center; gap: .4rem 1.1rem; }
+.st-link { display: inline-flex; align-items: center; gap: .4rem; font-size: .74rem; font-weight: 700; color: #9ca3af; transition: color .25s; }
+.st-link:hover { color: #fff; }
+.st-link--wa { color: #25D366; }
+.st-link--wa:hover { color: #4ade80; }
+
 .radar { position: relative; height: 10rem; border-radius: 1.4rem; overflow: hidden; background: radial-gradient(closest-side, rgba(255, 140, 0, 0.10), transparent), rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); }
 .radar svg { position: absolute; inset: 0; width: 100%; height: 100%; }
 .radar__ring { fill: none; stroke: rgba(255, 140, 0, 0.22); stroke-dasharray: 3 5; }

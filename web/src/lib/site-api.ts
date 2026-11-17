@@ -52,6 +52,19 @@ export function assetUrl(path: string): string {
   return "/" + path.replace(/^\/+/, "");
 }
 
+/**
+ * Logos padrão do admin têm versão WebP leve (~30-60 KB contra ~380 KB do PNG).
+ * Se o admin trocar o logo, o caminho muda e vale o arquivo enviado.
+ */
+const LOGO_WEBP: Record<string, string> = {
+  "img/logotopo.png": "/arte/logo-topo.webp",
+  "img/logorodape.png": "/arte/logo-rodape.webp",
+  "img/logo.png": "/arte/logo-icone.webp",
+};
+export function logoUrl(path: string): string {
+  return LOGO_WEBP[(path || "").replace(/^\/+/, "")] ?? assetUrl(path);
+}
+
 /** Prefixo das chamadas feitas no navegador pro PHP (vazio = mesma origem). */
 export function phpUrl(path: string): string {
   const base = (process.env.NEXT_PUBLIC_PHP_BASE ?? "").replace(/\/$/, "");

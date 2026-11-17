@@ -7,7 +7,7 @@
 const words = [
   "Fibra óptica",
   "Até 1 Giga",
-  "Suporte 24h",
+  "Assistente virtual 24h",
   "Sem fidelidade",
   "Instalação grátis",
   "Wi-Fi Dual-Band",

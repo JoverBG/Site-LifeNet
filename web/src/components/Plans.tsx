@@ -1,5 +1,6 @@
 import type { Plan } from "@/lib/site-api";
 import type { CSSProperties } from "react";
+import SectionHead from "./SectionHead";
 
 /** Mesma lógica de cores do index.php: popular > mais vendido > selo custom > padrão azul. */
 function styleFor(p: Plan) {
@@ -58,77 +59,133 @@ function styleFor(p: Plan) {
   };
 }
 
-function PlanCard({ plan }: { plan: Plan }) {
+/** "#rrggbb" → "r g b" pro --glow do .spotlight */
+function rgbTriplet(hex: string) {
+  const n = parseInt(hex.slice(1), 16);
+  return `${(n >> 16) & 255} ${(n >> 8) & 255} ${n & 255}`;
+}
+
+function glowFor(p: Plan) {
+  if (p.popular) return "#FF8C00";
+  if (p.best_seller) return "#22c55e";
+  if (p.custom_badge && /^#[0-9a-f]{6}$/i.test(p.custom_badge_color)) return p.custom_badge_color;
+  return "#007BFF";
+}
+
+/** O que vem em todo plano (as promessas que o site já faz). */
+const included = ["Wi-Fi dual-band em comodato", "Instalação grátis", "Sem fidelidade", "Assistente virtual 24h no WhatsApp"];
+const uses = [
+  { icon: "fa-wifi", label: "Wi-Fi" },
+  { icon: "fa-gamepad", label: "Jogos" },
+  { icon: "fa-tv", label: "Streaming" },
+  { icon: "fa-laptop", label: "Trabalho" },
+];
+
+/** "79,99" → 79.99 (o admin manda com vírgula). */
+function priceNumber(price: string) {
+  return Number(price.replace(/\./g, "").replace(",", "."));
+}
+const brl = (n: number) => n.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+function PlanCard({ plan, index, maxMbps }: { plan: Plan; index: number; maxMbps: number }) {
   const s = styleFor(plan);
+  const glow = glowFor(plan);
+  const hot = plan.popular;
+  const card = { ...s.card, "--glow": rgbTriplet(glow), "--accent": glow } as unknown as CSSProperties;
+  const [int, cents] = plan.price.split(",");
+  const perDay = priceNumber(plan.price) / 30;
+  const pct = maxMbps > 0 ? Math.max(12, Math.round((plan.speed_mbps / maxMbps) * 100)) : 100;
+  // O data-reveal fica no invólucro: o cartão tem transform próprio (hover e destaque)
   return (
-    <div className="gs-reveal bg-card border rounded-[2.5rem] p-10 relative flex flex-col justify-between transform lg:-translate-y-6 shadow-2xl hover:-translate-y-9 transition duration-500 z-10" style={s.card as CSSProperties}>
-      <div className="absolute top-0 right-0 text-white text-[10px] font-black px-6 py-2.5 rounded-bl-2xl rounded-tr-[2.5rem] uppercase tracking-widest leading-tight text-center" style={s.badge as CSSProperties}>
-        {s.badgeText.map((t, i) => (<span key={i}>{i > 0 && <br />}{t}</span>))}
-      </div>
-      <div className="text-center mt-6">
-        <div className="text-6xl font-black mb-2 tracking-tighter" style={s.speed}>
-          {plan.speed.value}<span className="text-xl" style={s.unit}> {plan.speed.unit}</span>
+    <div data-reveal data-delay={String(index * 110)} className={hot ? "lg:-mt-3" : "lg:mt-3"}>
+      <article data-inview className={`plan-card plan2 spotlight relative flex flex-col h-full ${hot ? "plan-card--hot" : ""}`} style={card}>
+        <span className="plan2__watermark" aria-hidden="true">{plan.speed.value}</span>
+
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+          <p className="plan2__name">{plan.name}</p>
+          <span className="plan2__badge" style={s.badge as CSSProperties}>{s.badgeText.join(" ")}</span>
         </div>
-        <p className={`${s.perMonth} text-xs font-bold tracking-[0.2em] mb-4 mt-6`} style={s.perMonthStyle}>POR MÊS</p>
-        <div className="text-5xl font-black mb-3" style={s.price}>R$ {plan.price}</div>
-        <p className="text-yellow-500 text-[11px] font-bold uppercase tracking-widest">{plan.name}</p>
-      </div>
-      <div className="flex justify-center gap-6 my-10">
-        <i aria-hidden="true" className="fa-solid fa-wifi text-2xl" style={s.icon} />
-        <i aria-hidden="true" className="fa-solid fa-bolt text-yellow-500 text-2xl" />
-        <i aria-hidden="true" className="fa-solid fa-gamepad text-2xl" style={s.icon} />
-        <i aria-hidden="true" className="fa-solid fa-tv text-2xl" style={s.icon} />
-      </div>
-      <a href={plan.whatsapp_link} target="_blank" rel="noopener" className="w-full text-white font-black py-5 rounded-2xl transition text-center block text-xl" style={s.btn as CSSProperties}>
-        Assinar Agora
-      </a>
+
+        <div className="plan2__speed" style={s.speed}>
+          <span className="plan2__num">{plan.speed.value}</span>
+          <span className="plan2__unit" style={s.unit}>{plan.speed.unit}</span>
+        </div>
+        <div className="plan2__meter" aria-hidden="true"><span style={{ "--w": `${pct}%` } as CSSProperties} /></div>
+
+        <div className="plan2__price">
+          <span className="plan2__cur">R$</span>
+          <span className="plan2__int">{int}</span>
+          <span className="plan2__cents">{cents ? `,${cents}` : ""}<small>/mês</small></span>
+        </div>
+        {Number.isFinite(perDay) && perDay > 0 && (
+          <p className="plan2__day">Menos de <strong>R$ {brl(Math.floor(perDay * 10 + 1) / 10)}</strong> por dia</p>
+        )}
+
+        <ul className="plan2__list">
+          {included.map((t) => (
+            <li key={t}>
+              <span className="check-dot" style={{ "--accent": glow } as CSSProperties} aria-hidden="true"><i className="fa-solid fa-check" /></span>{t}
+            </li>
+          ))}
+        </ul>
+
+        <ul className="plan2__uses" aria-label="Ideal para">
+          {uses.map((u) => (
+            <li key={u.label}><i aria-hidden="true" className={`fa-solid ${u.icon}`} />{u.label}</li>
+          ))}
+        </ul>
+
+        <a href={plan.whatsapp_link} target="_blank" rel="noopener" data-magnetic data-cursor="Assinar"
+          className="plan-btn w-full text-white font-black py-4 rounded-2xl flex items-center justify-center gap-3 text-lg" style={s.btn as CSSProperties}>
+          Assinar agora <i aria-hidden="true" className="fa-solid fa-arrow-right text-sm" />
+        </a>
+      </article>
     </div>
   );
 }
 
 const sideBenefits = [
-  { icon: "fa-calendar-check", color: "blue", title: "Mensalidade Pré-paga", text: "Controle total dos seus gastos, sem surpresas no final do mês." },
-  { icon: "fa-screwdriver-wrench", color: "orange", title: "Instalação Gratuita", text: "Toda a infraestrutura por nossa conta para sua conexão brilhar." },
-  { icon: "fa-unlock-keyhole", color: "blue", title: "Sem Fidelidade", text: "Fique conosco pela qualidade, não por contrato." },
-  { icon: "router", color: "orange", title: "Roteador em Comodato", text: "Equipamento de alta qualidade para sua conexão." },
+  { img: "icone-prepago", color: "blue", title: "Mensalidade pré-paga", text: "Controle total dos seus gastos, sem surpresas no final do mês." },
+  { img: "icone-instalacao", color: "orange", title: "Instalação gratuita", text: "Toda a infraestrutura por nossa conta para sua conexão brilhar." },
+  { img: "icone-sem-fidelidade", color: "blue", title: "Sem fidelidade", text: "Fique conosco pela qualidade, não por contrato." },
+  { img: "roteador", color: "orange", title: "Roteador em comodato", text: "Equipamento de alta qualidade para sua conexão." },
 ] as const;
 
 export default function Plans({ plans }: { plans: Plan[] }) {
   return (
-    <div id="planos" className="pt-10">
-      <p className="text-center text-[#007BFF] font-bold text-xs tracking-[0.3em] uppercase mb-3 gs-reveal">Planos</p>
-      <h2 className="text-center text-4xl md:text-5xl font-black mb-12 gs-reveal">Escolha o plano ideal para você</h2>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {plans.length > 0 ? plans.map((p) => <PlanCard key={p.id} plan={p} />) : (
-          <div className="gs-reveal bg-card border border-white/10 rounded-[2.5rem] p-10 lg:col-span-2 text-center flex items-center justify-center">
+    <section id="planos" data-rail="Planos" data-cta-hide className="pt-10">
+      <SectionHead n="02" eyebrow="Planos" title="Escolha o plano ideal para você" mark="ideal"
+        sub="Todos com fibra até o roteador, Wi-Fi dual-band e sem fidelidade. É só escolher a velocidade." />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-16 items-stretch">
+        {plans.length > 0 ? plans.map((p, i) => <PlanCard key={p.id} plan={p} index={i} maxMbps={Math.max(...plans.map((x) => x.speed_mbps || 0))} />) : (
+          <div data-reveal className="bg-card border border-white/10 rounded-[2.5rem] p-10 lg:col-span-3 text-center">
             <p className="text-gray-400">Nenhum plano cadastrado no momento. Verifique com nossa equipe.</p>
           </div>
         )}
+      </div>
 
-        <div className="gs-reveal relative bg-card border border-white/5 rounded-[2.5rem] p-10 flex flex-col justify-center">
-          <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#050b14] px-6 py-2 rounded-full border border-white/5 shadow-2xl z-10">
-            <p className="text-[#007BFF] font-bold text-[11px] tracking-[0.3em] uppercase m-0">Benefícios</p>
-          </div>
-          <div className="space-y-8 pt-2">
-            {sideBenefits.map((b) => {
-              const blue = b.color === "blue";
-              return (
-                <div key={b.title} className="flex items-start gap-5 group">
-                  <div className={`w-12 h-12 rounded-2xl ${blue ? "bg-[#007BFF]/10 text-[#007BFF] border-[#007BFF]/20" : "bg-[#FF8C00]/10 text-[#FF8C00] border-[#FF8C00]/20"} flex items-center justify-center flex-shrink-0 border group-hover:scale-110 transition`}>
-                    {b.icon === "router"
-                      ? <img src="/img/icone-roteador.png" alt="Roteador" className="w-8 h-8 object-contain" />
-                      : <i aria-hidden="true" className={`fa-solid ${b.icon} text-xl`} />}
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-sm">{b.title}</h4>
-                    <p className="text-[11px] text-gray-500 mt-1 leading-relaxed">{b.text}</p>
-                  </div>
+      <div data-reveal className="spotlight relative bg-card border border-white/5 rounded-[2rem] p-8 md:p-10 mt-12">
+        <div className="absolute top-0 left-8 -translate-y-1/2 bg-[#050b14] px-5 py-1.5 rounded-full border border-white/10">
+          <p className="text-[#007BFF] font-bold text-[11px] tracking-[0.3em] uppercase m-0">Em todos os planos</p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          {sideBenefits.map((b) => {
+            const blue = b.color === "blue";
+            return (
+              <div key={b.title} className="flex items-start gap-4 group">
+                <div className={`benefit-3d w-16 h-16 rounded-2xl ${blue ? "bg-[#007BFF]/10 border-[#007BFF]/20" : "bg-[#FF8C00]/10 border-[#FF8C00]/20"} flex items-center justify-center flex-shrink-0 border`}>
+                  <img src={`/arte/${b.img}.webp`} alt="" width={240} height={240} loading="lazy" decoding="async" className="w-[4.5rem] h-[4.5rem] max-w-none object-contain" />
                 </div>
-              );
-            })}
-          </div>
+                <div>
+                  <h3 className="font-bold text-sm">{b.title}</h3>
+                  <p className="text-xs text-gray-500 mt-1 leading-relaxed">{b.text}</p>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
-    </div>
+    </section>
   );
 }

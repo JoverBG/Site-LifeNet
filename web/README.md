@@ -30,8 +30,20 @@ ssh lifenet@10.20.2.11 'sudo systemctl restart lifenett-web'
 curl -sI https://lifenett.com.br/ | head -1
 ```
 
-Teste antes do corte: o mesmo build responde em `https://novo.lifenett.com.br/`
-(`noindex`, certificado próprio, mesmo snippet do nginx).
+⚠️ O `novo.lifenett.com.br` usava o **mesmo** Next da produção (mesmo snippet, porta 3100):
+subir com a receita acima publica nos dois.
+
+## Prévia em novo.lifenett.com.br (sem tocar na produção)
+
+```bash
+git checkout <branch-a-testar>
+bash web/deploy/deploy-preview.sh
+```
+
+Sobe uma segunda instância (`lifenett-web-preview`, `/opt/lifenett-web-preview`, porta 3101) e, na
+primeira vez, troca no server block do `novo` o include pra `snippets/lifenett-next-preview.conf`
+(cópia do snippet da produção apontando pra 3101; backup em `/etc/nginx/backups/` + `nginx -t`).
+`lifenett.com.br` segue na 3100. Como desfazer está no cabeçalho do script.
 
 ## Rollback
 
@@ -61,8 +73,9 @@ o upload de logo com chave/valor trocados (bug antigo). No nginx: o server block
 ficou restrito à rede local (respondia pela internet via `Host:` com a home PHP antiga), `/img` e `/uploads`
 sem `add_header` próprio (apagava HSTS/nosniff herdados), `api/totp.php` bloqueado, HSTS no `novo`.
 
-Ainda em aberto (decisão do Lucas): `www.` responde 200 em vez de redirecionar pro apex (canonical
-protege o SEO).
+`www.` → apex (2026-11-17): as páginas do `www.lifenett.com.br` dão 301 pra `lifenett.com.br`
+(`deploy/www-para-apex.sh`, só no `location /` do snippet). `/api`, `/app-api`, `/admin`, `/img` e
+`/uploads` seguem respondendo no `www`, pra não quebrar app ou POST antigo.
 
 ## Imagens (2026-09-12)
 

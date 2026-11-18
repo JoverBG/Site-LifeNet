@@ -1,0 +1,23 @@
+[Unit]
+Description=novo.lifenett.com.br - PREVIA do front Next.js (standalone, porta 3101)
+After=network.target
+StartLimitIntervalSec=0
+
+# Mesma unit da produção (lifenett-web.service), só que em outra pasta e porta.
+# Serve só o novo.lifenett.com.br (snippets/lifenett-next-preview.conf); a
+# produção continua na 3100 sem saber que esta existe.
+
+[Service]
+User=lifenet
+Group=lifenet
+WorkingDirectory=/opt/lifenett-web-preview
+Environment=NODE_ENV=production
+Environment=PORT=3101
+Environment=HOSTNAME=127.0.0.1
+Environment=SITE_API_URL=http://10.20.2.11/api
+ExecStart=/usr/bin/node server.js
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

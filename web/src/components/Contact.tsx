@@ -1,31 +1,48 @@
-export default function Contact({ whatsappLink, instagram }: { whatsappLink: string; instagram: string }) {
+import TeamStatus from "./TeamStatus";
+import { HORARIO_TEXTO } from "@/lib/atendimento";
+
+/**
+ * Atendimento: a Bruna (assistente virtual) responde 24h; a equipe tem horário,
+ * e o status ao vivo diz se está aberta agora. Canais: WhatsApp, Instagram e
+ * e-mail quando o admin tiver.
+ */
+export default function Contact({ whatsappLink, instagram, email }: { whatsappLink: string; instagram: string; email?: string }) {
+  const channels = [
+    { href: whatsappLink, icon: "fa-brands fa-whatsapp", color: "#25D366", title: "WhatsApp", sub: "Bruna 24h · equipe no horário", external: true },
+    { href: instagram, icon: "fa-brands fa-instagram", color: "#ec4899", title: "Instagram", sub: "Novidades e promoções", external: true },
+    ...(email ? [{ href: `mailto:${email}`, icon: "fa-solid fa-envelope", color: "#38bdf8", title: "E-mail", sub: email, external: false }] : []),
+  ];
   return (
-    <div id="contato" className="bg-card border border-white/5 rounded-[2rem] p-8 flex flex-col justify-between h-full">
-      <div>
-        <h3 className="font-bold text-xl mb-1 text-white">Atendimento rápido</h3>
-        <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-6">Suporte direto</p>
+    <div id="contato" style={{ "--glow": "37 211 102" } as React.CSSProperties} className="svc-card spotlight relative h-full">
+      <div className="svc-card__head">
+        <span className="relative shrink-0">
+          <img src="/arte/bruna-rosto.webp" alt="Bruna, assistente virtual da LifeNet" width={200} height={200} loading="lazy" decoding="async"
+            className="w-14 h-14 rounded-full object-cover ring-2 ring-[#25D366]/70 shadow-[0_0_20px_rgba(37,211,102,0.4)]" />
+          <span className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-[#22c55e] border-2 border-[#0b1424]" aria-hidden="true" />
+        </span>
+        <div>
+          <h3 className="svc-card__title">Atendimento</h3>
+          <p className="svc-card__sub">{HORARIO_TEXTO.curto}</p>
+        </div>
       </div>
-      <div className="space-y-4">
-        <a href={whatsappLink} target="_blank" rel="noopener"
-          className="flex items-center justify-between bg-[#050b14] border border-white/5 p-5 rounded-2xl hover:border-[#25D366]/50 hover:shadow-[0_0_20px_rgba(37,211,102,0.1)] transition group">
-          <div className="flex items-center gap-4">
-            <i aria-hidden="true" className="fa-brands fa-whatsapp text-4xl text-[#25D366] group-hover:scale-110 transition" />
-            <div><h4 className="font-bold text-sm">WhatsApp</h4><p className="text-[11px] text-gray-500">Suporte Comercial</p></div>
-          </div>
-          <div className="w-9 h-9 rounded-full bg-[#25D366]/10 flex items-center justify-center text-[#25D366] group-hover:bg-[#25D366] group-hover:text-white transition">
-            <i aria-hidden="true" className="fa-solid fa-arrow-right text-xs" />
-          </div>
-        </a>
-        <a href={instagram} target="_blank" rel="noopener"
-          className="flex items-center justify-between bg-[#050b14] border border-white/5 p-5 rounded-2xl hover:border-pink-500/50 hover:shadow-[0_0_20px_rgba(236,72,153,0.1)] transition group">
-          <div className="flex items-center gap-4">
-            <i aria-hidden="true" className="fa-brands fa-instagram text-4xl text-pink-500 group-hover:scale-110 transition" />
-            <div><h4 className="font-bold text-sm">Instagram</h4><p className="text-[11px] text-gray-500">Siga nosso perfil</p></div>
-          </div>
-          <div className="w-9 h-9 rounded-full bg-pink-500/10 flex items-center justify-center text-pink-500 group-hover:bg-pink-500 group-hover:text-white transition">
-            <i aria-hidden="true" className="fa-solid fa-arrow-right text-xs" />
-          </div>
-        </a>
+
+      <div className="flex flex-col gap-2">
+        <p className="team-status is-open"><span className="team-status__dot" aria-hidden="true" /> Bruna, assistente virtual: online 24h</p>
+        <TeamStatus />
+      </div>
+
+      <div className="flex flex-col gap-3 mt-auto">
+        {channels.map((c) => (
+          <a key={c.title} href={c.href} {...(c.external ? { target: "_blank", rel: "noopener" } : {})}
+            className="channel group" style={{ "--c": c.color } as React.CSSProperties}>
+            <span className="channel__icon"><i aria-hidden="true" className={c.icon} /></span>
+            <span className="min-w-0 flex-1">
+              <span className="block font-bold text-sm text-white">{c.title}</span>
+              <span className="block text-[11px] text-gray-400 truncate">{c.sub}</span>
+            </span>
+            <span className="channel__go" aria-hidden="true"><i className="fa-solid fa-arrow-right text-xs" /></span>
+          </a>
+        ))}
       </div>
     </div>
   );

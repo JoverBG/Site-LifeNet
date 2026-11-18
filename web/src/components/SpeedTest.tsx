@@ -103,10 +103,11 @@ export default function SpeedTest({ speedtestUrl, whatsappDigits, plans }: { spe
   const ticks = Array.from({ length: 13 }, (_, i) => -120 + i * 20);
 
   const pct = plan && down != null && plan.speed_mbps > 0 ? Math.round((down / plan.speed_mbps) * 100) : null;
+  // Textos curtos de propósito: o resultado ocupa o mesmo espaço da dica e o cartão não cresce
   const verdict = pct == null ? null
-    : pct >= 80 ? { tone: "good", text: `Ótimo! Você está recebendo ${pct}% do seu plano.` }
-    : pct >= 50 ? { tone: "warn", text: `${pct}% do plano. Se estiver no Wi-Fi, teste perto do roteador ou com cabo.` }
-    : { tone: "bad", text: `Só ${pct}% do plano. Mande o resultado pra Bruna que a gente verifica.` };
+    : pct >= 80 ? { tone: "good", text: `Ótimo! ${pct}% do seu plano.` }
+    : pct >= 50 ? { tone: "warn", text: `${pct}% do plano. No Wi-Fi? Teste perto do roteador.` }
+    : { tone: "bad", text: `Só ${pct}% do plano. Mande pra Bruna verificar.` };
 
   const msg = down != null
     ? `Olá, Bruna! Fiz o teste de velocidade no site: download ${fmtMbps(down)} Mbps, upload ${up != null ? fmtMbps(up) : "-"} Mbps, ping ${ping ? fmtMs(ping.ping) : "-"} ms${plan ? `. Meu plano é de ${plan.speed.value} ${plan.speed.unit}` : ""}.`
@@ -172,18 +173,23 @@ export default function SpeedTest({ speedtestUrl, whatsappDigits, plans }: { spe
       </dl>
 
       {phase === "done" && plans.length > 0 ? (
-        <div className="st-plan">
-          <p className="st-plan__q">Qual é o seu plano?</p>
-          <div className="st-plan__chips">
-            {plans.map((p) => (
-              <button key={p.id} type="button" onClick={() => setPlan(p)} aria-pressed={plan?.id === p.id}
-                className={`st-chip ${plan?.id === p.id ? "is-on" : ""}`}>{p.speed.value} {p.speed.unit}</button>
-            ))}
-          </div>
-          {verdict && pct != null && (
+        <div className="st-plan" aria-live="polite">
+          {verdict && pct != null && plan ? (
             <div className={`st-verdict tone-${verdict.tone}`}>
-              <span className="st-verdict__bar"><span style={{ width: `${Math.min(100, pct)}%` }} /></span>
+              <div className="st-verdict__top">
+                <span className="st-verdict__bar"><span style={{ width: `${Math.min(100, pct)}%` }} /></span>
+                <button type="button" onClick={() => setPlan(null)} className="st-verdict__change" aria-label={`Plano ${plan.speed.value} ${plan.speed.unit}: trocar`}>
+                  {plan.speed.value} {plan.speed.unit} · trocar
+                </button>
+              </div>
               <p>{verdict.text}</p>
+            </div>
+          ) : (
+            <div className="st-plan__row">
+              <p className="st-plan__q">Seu plano:</p>
+              {plans.map((p) => (
+                <button key={p.id} type="button" onClick={() => setPlan(p)} className="st-chip">{p.speed.value} {p.speed.unit}</button>
+              ))}
             </div>
           )}
         </div>
@@ -203,11 +209,11 @@ export default function SpeedTest({ speedtestUrl, whatsappDigits, plans }: { spe
         <div className="st-links">
           {phase === "done" && (
             <a href={waLink(whatsappDigits, msg)} target="_blank" rel="noopener" className="st-link st-link--wa">
-              <i aria-hidden="true" className="fa-brands fa-whatsapp" /> Enviar resultado para a Bruna
+              <i aria-hidden="true" className="fa-brands fa-whatsapp" /> Enviar resultado à Bruna
             </a>
           )}
           <a href={speedtestUrl} target="_blank" rel="noopener" className="st-link">
-            Testar também no Speedtest <i aria-hidden="true" className="fa-solid fa-arrow-up-right-from-square text-[9px]" />
+            {phase === "done" ? "Speedtest" : "Testar também no Speedtest"} <i aria-hidden="true" className="fa-solid fa-arrow-up-right-from-square text-[9px]" />
           </a>
         </div>
       </div>

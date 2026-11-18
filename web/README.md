@@ -73,8 +73,9 @@ o upload de logo com chave/valor trocados (bug antigo). No nginx: o server block
 ficou restrito à rede local (respondia pela internet via `Host:` com a home PHP antiga), `/img` e `/uploads`
 sem `add_header` próprio (apagava HSTS/nosniff herdados), `api/totp.php` bloqueado, HSTS no `novo`.
 
-Ainda em aberto (decisão do Lucas): `www.` responde 200 em vez de redirecionar pro apex (canonical
-protege o SEO).
+`www.` → apex (2026-11-17): as páginas do `www.lifenett.com.br` dão 301 pra `lifenett.com.br`
+(`deploy/www-para-apex.sh`, só no `location /` do snippet). `/api`, `/app-api`, `/admin`, `/img` e
+`/uploads` seguem respondendo no `www`, pra não quebrar app ou POST antigo.
 
 ## Imagens (2026-09-12)
 

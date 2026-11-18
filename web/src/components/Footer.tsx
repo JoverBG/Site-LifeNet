@@ -27,7 +27,7 @@ export default function Footer({ settings }: { settings: Settings }) {
 
           <div data-reveal data-delay="80">
             <p className="footer-h">Navegação</p>
-            <ul className="space-y-3">
+            <ul className="space-y-1">
               <li><a href="#inicio" className="footer-link">Início</a></li>
               <li><a href="#planos" className="footer-link">Planos</a></li>
               <li><a href="#como-funciona" className="footer-link">Como funciona</a></li>
@@ -38,7 +38,7 @@ export default function Footer({ settings }: { settings: Settings }) {
 
           <div data-reveal data-delay="160">
             <p className="footer-h">Cliente</p>
-            <ul className="space-y-3">
+            <ul className="space-y-1">
               <li><a href={s.customer_portal_link} target="_blank" rel="noopener" className="footer-link">Central do Assinante</a></li>
               <li><a href={s.customer_portal_link} target="_blank" rel="noopener" className="footer-link">2ª via de boleto</a></li>
               <li><a href="#app" className="footer-link">App Minha LifeNet</a></li>
@@ -49,7 +49,7 @@ export default function Footer({ settings }: { settings: Settings }) {
 
           <div data-reveal data-delay="240">
             <p className="footer-h">Fale conosco</p>
-            <ul className="space-y-4 text-sm">
+            <ul className="space-y-2 text-sm">
               <li><a href={s.whatsapp_link} target="_blank" rel="noopener" className="footer-contact"><i aria-hidden="true" className="fa-brands fa-whatsapp text-[#25D366]" /> {s.whatsapp_number}</a></li>
               <li><a href={`mailto:${s.contact_email}`} className="footer-contact"><i aria-hidden="true" className="fa-regular fa-envelope text-[#007BFF]" /> {s.contact_email}</a></li>
               <li><a href={mapsUrl} target="_blank" rel="noopener" className="footer-contact items-start"><i aria-hidden="true" className="fa-solid fa-location-dot text-[#007BFF] mt-1" /> {s.contact_address}</a></li>

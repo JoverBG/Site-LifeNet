@@ -17,7 +17,23 @@ PHP `/var/www/lifenett.com.br`; o Next só **lê** `api/site.php` e renderiza.
 Roteamento do nginx: `/admin/`, `/api/`, `/img/`, `/uploads/`, `/app/` e `*.html`
 vêm do webroot PHP; **todo o resto** vai pro Next. `/index.php` → 301 `/`.
 
-## Deploy (do WSL)
+## Deploy (jeito atual, tudo dentro da VM)
+
+1. Testar no `novo`: `cd <pasta do projeto>/web && bash deploy/preview-na-vm.sh`
+2. Conferir em https://novo.lifenett.com.br
+3. Passar a mesma versão pra produção (não builda de novo, copia o que está no `novo`):
+
+```bash
+bash deploy/producao-na-vm.sh --ensaio   # só confere, não muda nada
+bash deploy/producao-na-vm.sh            # guarda cópia em /opt/lifenett-web.bak-<data> e publica
+bash deploy/producao-na-vm.sh --voltar   # volta pra cópia mais nova
+```
+
+Se a versão nova não responder (na 3100 ou pelo nginx), o script volta sozinho pra cópia.
+Primeira troca com este script: 2026-11-18 (build `PhznfB4eTnenVJaZjRxsa`; cópia da anterior em
+`/opt/lifenett-web.bak-20261118022610`).
+
+## Deploy antigo (do WSL)
 
 ```bash
 cd ~/projetos/site-lifenet/web        # clone em disco Linux (node_modules no /mnt/d é lento)

@@ -73,6 +73,32 @@ erro se token ou chat estiverem vazios, deixando o serviço vermelho no `systemc
 
 ---
 
+## Recuperação de senha pelo Telegram (2026-11-19)
+
+**Problema:** `admin/forgot_password.php` mostrava o link de redefinição **na tela** quando o
+`mail()` falhava (e a VM não tem servidor de e-mail). Bastava saber o e-mail do admin (o padrão é
+`admin@seusite.com.br`) para trocar a senha pela internet. O link ainda usava o `Host` da requisição.
+
+**Agora:**
+- O link vai **só** para o Telegram do responsável (chat fixo no servidor), pelo mesmo bot do monitor.
+  Nada aparece na tela; a resposta é a mesma exista ou não o usuário.
+- Pede o **usuário** (não o e-mail). Link vale **30 min**, uso único, origem fixa `https://lifenett.com.br`.
+- No banco fica só o **sha256** do token; a validade é comparada no PHP (sem confusão de fuso com o SQLite).
+- No máximo **1 envio a cada 2 min** (`data/reset_last_sent`), CSRF nas duas páginas, senha nova com 10+ caracteres.
+- A **2FA continua valendo**: quem tiver só o link troca a senha, mas não entra sem o código.
+
+**Configuração (uma vez, na VM 104)** — mesmas chaves do `/opt/lifebot-painel/.env` da VPS:
+```bash
+sudo mkdir -p /etc/lifenett
+sudo tee /etc/lifenett/telegram.env >/dev/null <<'ENV'
+PAINEL_TELEGRAM_BOT_TOKEN=<token do bot>
+PAINEL_TELEGRAM_CHAT_ID=<chat do responsável>
+ENV
+sudo chown root:www-data /etc/lifenett/telegram.env && sudo chmod 640 /etc/lifenett/telegram.env
+```
+Sem esse arquivo, a página avisa que não conseguiu enviar e não cria link nenhum.
+Teste: "Esqueci minha senha" com o usuário `admin` → a mensagem chega no Telegram.
+
 ## Hardening aplicado (rajada 2026-05-24)
 
 ### Backup completo

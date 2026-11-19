@@ -4,6 +4,7 @@ header('Access-Control-Allow-Origin: *');
 header('Cache-Control: max-age=120');
 
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/status_oficial.php';
 
 // Busca serviços do banco de dados
 $rows = $db->query("SELECT * FROM site_services ORDER BY display_order ASC")->fetchAll(PDO::FETCH_ASSOC);
@@ -80,6 +81,22 @@ foreach ($rows as $i => $svc) {
 }
 
 curl_multi_close($mh);
+
+// Status oficial (página de status da própria empresa). O teste acima só vê se o
+// site abre; a empresa confirma falhas parciais (login, mensagens, pagamento).
+// Falha grave confirmada = "offline"; instabilidade confirmada = no mínimo "slow".
+$oficial = status_oficial(array_column($results, 'slug'));
+foreach ($results as &$r) {
+    $o = $oficial[$r['slug']] ?? null;
+    if (!$o) continue;
+    $r['official'] = $o; // {level: ok|minor|major, title, url, source}
+    if ($o['level'] === 'major') {
+        $r['status'] = 'offline';
+    } elseif ($o['level'] === 'minor' && $r['status'] === 'online') {
+        $r['status'] = 'slow';
+    }
+}
+unset($r);
 
 // Divide em páginas de 10
 $pages = array_chunk($results, 10);

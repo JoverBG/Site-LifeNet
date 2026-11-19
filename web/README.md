@@ -109,3 +109,18 @@ Banner cadastrado pelo admin **não** é convertido (o upload vai como veio) —
 O que ainda pesa: `mapa.png` 2,6 MB (é o arquivo que o teste de velocidade baixa, além de ilustrar a
 cobertura num card de 144 px — daria pra separar as duas funções), os três logos (~1,1 MB somados, PNG com
 transparência) e `icone-roteador.png` 275 KB. `fundo2.png` (1,6 MB) não é usado por ninguém.
+
+## Status dos serviços (seção "Seus apps favoritos estão no ar?")
+
+`api/services_status.php` junta duas fontes:
+
+1. **Teste da rede LifeNet**: o servidor abre o site de cada serviço. Só pega queda total.
+2. **Página oficial de status** da empresa (`api/status_oficial.php`), quando ela publica uma:
+   Discord, ChatGPT, Twitch, Fortnite/Epic, Mercado Pago, Zoom e Gmail/Drive (painel do Google Workspace).
+   Incidente grave confirmado → "Falha"; instabilidade → "Instável". O cartão mostra o nome do
+   incidente e leva pra página oficial. Cache de 2 min em `data/status_oficial_cache.json`
+   (se a empresa não responder, vale o último resultado por até 15 min; depois, ignora).
+
+WhatsApp/Instagram/Facebook, YouTube, Netflix, bancos, Pix e operadoras **não publicam** status
+legível por máquina (o metastatus.com da Meta só cobre produtos de empresa), então continuam só com o
+teste da rede + link pro Downdetector. Para incluir outra fonte, acrescente em `STATUS_OFICIAL_FONTES`.

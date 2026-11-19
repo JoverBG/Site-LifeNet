@@ -5,7 +5,9 @@ import { phpUrl } from "@/lib/site-api";
 import SectionHead from "./SectionHead";
 
 type Status = "online" | "slow" | "offline";
-type Svc = { name: string; slug: string; icon: string; color: string; status: Status };
+/** Status publicado pela própria empresa (página oficial), quando ela tem uma. */
+type Official = { level: "ok" | "minor" | "major"; title: string | null; url: string; source: string };
+type Svc = { name: string; slug: string; icon: string; color: string; status: Status; official?: Official };
 type Data = { pages: Svc[][]; total: number; checked_at: string };
 
 const label: Record<Status, string> = { online: "Normal", slow: "Lentidão", offline: "Falha" };
@@ -23,18 +25,37 @@ const beat: Record<Status, string> = {
   offline: "M0 12 H160",
 };
 
+const hasIncident = (s: Svc) => !!s.official && s.official.level !== "ok";
+
 function Tile({ svc, i }: { svc: Svc; i: number }) {
+  const off = svc.official;
+  const incident = hasIncident(svc);
+  // Com incidente confirmado, o cartão leva pra página oficial; senão, pros relatos do Downdetector.
+  const href = incident && off ? off.url : `https://downdetector.com.br/fora-do-ar/${svc.slug}/`;
+  const text = incident && off?.level === "minor" ? "Instável" : label[svc.status];
   return (
-    <a href={`https://downdetector.com.br/fora-do-ar/${svc.slug}/`} target="_blank" rel="noopener"
+    <a href={href} target="_blank" rel="noopener"
       className={`svc-tile is-${svc.status}`} style={{ "--brand": svc.color, "--i": i } as CSSProperties}
-      aria-label={`${svc.name}: ${label[svc.status]}. Abrir no Downdetector`}>
+      aria-label={`${svc.name}: ${text}${incident && off ? `, confirmado por ${off.source}${off.title ? `: ${off.title}` : ""}. Abrir a página oficial de status` : ". Abrir no Downdetector"}`}>
+      {off && !incident && (
+        <span className="svc-tile__official" title={`Também conferido na página oficial de status (${off.source})`} aria-hidden="true">
+          <i className="fa-solid fa-circle-check" /> Oficial
+        </span>
+      )}
       <span className="svc-tile__icon"><i aria-hidden="true" className={svc.icon} /></span>
       <span className="svc-tile__name">{svc.name}</span>
-      <span className="svc-tile__status"><span className="svc-tile__dot" aria-hidden="true" />{label[svc.status]}</span>
+      <span className="svc-tile__status"><span className="svc-tile__dot" aria-hidden="true" />{text}</span>
       <svg className="svc-tile__beat" viewBox="0 0 160 24" preserveAspectRatio="none" aria-hidden="true">
         <path d={beat[svc.status]} pathLength={1} />
       </svg>
-      {svc.status !== "online" && <span className="svc-tile__dd">Ver relatos no Downdetector <i aria-hidden="true" className="fa-solid fa-arrow-up-right-from-square" /></span>}
+      {incident && off ? (
+        <span className="svc-tile__confirmed" title={off.title ?? undefined}>
+          <span className="svc-tile__confirmed-by">Confirmado por {off.source}</span>
+          {off.title && <span className="svc-tile__incident">{off.title}</span>}
+        </span>
+      ) : svc.status !== "online" && (
+        <span className="svc-tile__dd">Ver relatos no Downdetector <i aria-hidden="true" className="fa-solid fa-arrow-up-right-from-square" /></span>
+      )}
       <span className="svc-tile__go" aria-hidden="true"><i className="fa-solid fa-arrow-up-right-from-square" /></span>
     </a>
   );
@@ -73,6 +94,8 @@ export default function ServicesStatus() {
   const ok = all.filter((s) => s.status === "online").length;
   const slow = all.filter((s) => s.status === "slow").length;
   const down = all.filter((s) => s.status === "offline").length;
+  const confirmed = all.filter(hasIncident).length;
+  const officialCount = all.filter((s) => s.official).length;
   const pct = all.length ? Math.round((ok / all.length) * 100) : 0;
   const tone = !data ? "idle" : down ? "bad" : slow ? "warn" : "good";
   const headline = error ? "Não deu pra testar agora"
@@ -83,7 +106,9 @@ export default function ServicesStatus() {
   const detail = error ? "Tente de novo em instantes ou confira no Downdetector."
     : !data ? "Medindo a resposta de cada app a partir da nossa rede."
     : tone === "good" ? `Os ${data.total} serviços responderam normalmente pela rede LifeNet.`
-    : `${ok} de ${data.total} normais${slow ? ` · ${slow} com lentidão` : ""}${down ? ` · ${down} sem resposta` : ""}. Se o problema for do app, ele aparece no Downdetector.`;
+    : `${ok} de ${data.total} normais${slow ? ` · ${slow} com instabilidade` : ""}${down ? ` · ${down} com falha` : ""}.${confirmed
+        ? ` ${confirmed === 1 ? "1 problema confirmado" : `${confirmed} problemas confirmados`} pela própria empresa: é do app, não da sua internet.`
+        : " Se o problema for do app, ele aparece no Downdetector."}`;
 
   return (
     <section id="status" data-rail="Status" className="pt-10">
@@ -167,6 +192,7 @@ export default function ServicesStatus() {
 
           <p className="svc-source">
             <i aria-hidden="true" className="fa-solid fa-circle-info" /> Teste automático feito pelo servidor da LifeNet: mostra se o app responde.
+            {officialCount > 0 && <> Os marcados como <strong>Oficial</strong> também são conferidos na página de status da própria empresa, que avisa falhas parciais (login, mensagens, pagamento).</>}{" "}
             Para ver relatos de outros usuários, consulte o{" "}
             <a href="https://downdetector.com.br/" target="_blank" rel="noopener">Downdetector</a>.
           </p>

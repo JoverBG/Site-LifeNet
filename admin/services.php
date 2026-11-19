@@ -5,6 +5,7 @@ if (!isset($_SESSION['admin_logged_in'])) {
     exit;
 }
 require_once __DIR__ . '/../api/db.php';
+require_once __DIR__ . '/../api/status_oficial.php'; // STATUS_OFICIAL_FONTES: quem tem página oficial de status
 
 $successMessage = '';
 $errorMessage   = '';
@@ -52,6 +53,10 @@ $suggestions = [
     ['name' => 'Vivo',                   'slug' => 'vivo',                     'icon' => 'fa-solid fa-mobile-screen',         'color' => '#660099'],
     ['name' => 'TIM',                    'slug' => 'tim',                      'icon' => 'fa-solid fa-signal',                'color' => '#004B92'],
     ['name' => 'Correios',               'slug' => 'correios',                 'icon' => 'fa-solid fa-truck',                 'color' => '#FFE600'],
+    // Com página oficial de status (ver api/status_oficial.php)
+    ['name' => 'Mercado Pago',           'slug' => 'mercado-pago',             'icon' => 'fa-solid fa-handshake',             'color' => '#00B1EA'],
+    ['name' => 'Fortnite / Epic Games',  'slug' => 'fortnite',                 'icon' => 'fa-solid fa-gamepad',               'color' => '#FFFFFF'],
+    ['name' => 'Zoom',                   'slug' => 'zoom',                     'icon' => 'fa-solid fa-video',                 'color' => '#2D8CFF'],
 ];
 
 // ADICIONAR serviço
@@ -95,6 +100,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             'bradesco' => 'https://banco.bradesco', 'banco-inter' => 'https://www.bancointer.com.br',
             'claro-internet' => 'https://www.claro.com.br', 'vivo' => 'https://www.vivo.com.br',
             'openai-chatgpt' => 'https://chat.openai.com', 'ifood' => 'https://www.ifood.com.br',
+            'mercado-pago' => 'https://www.mercadopago.com.br', 'fortnite' => 'https://www.fortnite.com',
+            'zoom' => 'https://zoom.us', 'gmail' => 'https://mail.google.com',
         ];
         $url = $urls[$s['slug']] ?? 'https://' . $s['slug'] . '.com';
         // Verifica se já existe
@@ -196,7 +203,11 @@ $activeSlugs    = array_column($activeServices, 'slug');
                                 <i class="<?php echo htmlspecialchars($svc['icon']); ?>"></i>
                             </div>
                             <div class="flex-1 min-w-0">
-                                <p class="text-sm font-bold text-white"><?php echo htmlspecialchars($svc['name']); ?></p>
+                                <p class="text-sm font-bold text-white"><?php echo htmlspecialchars($svc['name']); ?>
+                                    <?php if (isset(STATUS_OFICIAL_FONTES[$svc['slug']])): ?>
+                                    <span class="ml-1 text-[9px] font-bold text-green-400 border border-green-500/30 px-1.5 py-0.5 rounded" title="Também conferido na página oficial de status da empresa">Status oficial</span>
+                                    <?php endif; ?>
+                                </p>
                                 <p class="text-[10px] text-gray-500 font-mono truncate"><?php echo htmlspecialchars($svc['url']); ?></p>
                             </div>
                             <a href="https://downdetector.com.br/status/<?php echo urlencode($svc['slug']); ?>/" target="_blank"
@@ -217,7 +228,9 @@ $activeSlugs    = array_column($activeServices, 'slug');
                 <div class="bg-[#0a1122] border border-white/5 rounded-2xl overflow-hidden shadow-lg">
                     <div class="bg-white/5 px-6 py-4 border-b border-white/5">
                         <h3 class="text-sm font-black text-gray-300 tracking-widest uppercase"><i class="fa-solid fa-wand-magic-sparkles text-yellow-400 mr-2"></i> Sugestões para usar no Site</h3>
-                        <p class="text-[11px] text-gray-500 mt-1">Clique em <strong class="text-gray-300">+ Adicionar</strong> para incluir direto na lista ativa.</p>
+                        <p class="text-[11px] text-gray-500 mt-1">Clique em <strong class="text-gray-300">+ Adicionar</strong> para incluir direto na lista ativa.
+                            Os marcados com <strong class="text-green-400">Status oficial</strong> também são conferidos na página de status da própria empresa:
+                            falhas parciais (login, mensagens, pagamento) que ela confirmar aparecem no site.</p>
                     </div>
                     <div class="grid grid-cols-2 md:grid-cols-3 gap-3 p-6">
                         <?php foreach($suggestions as $i => $s):
@@ -230,6 +243,9 @@ $activeSlugs    = array_column($activeServices, 'slug');
                             </div>
                             <div class="flex-1 min-w-0">
                                 <p class="text-xs font-bold text-white truncate"><?php echo $s['name']; ?></p>
+                                <?php if (isset(STATUS_OFICIAL_FONTES[$s['slug']])): ?>
+                                <span class="block text-[9px] text-green-400 font-bold" title="Falhas confirmadas pela empresa aparecem no site">Status oficial</span>
+                                <?php endif; ?>
                                 <?php if ($isActive): ?>
                                 <span class="text-[9px] text-green-500 font-bold">✓ Ativo</span>
                                 <?php else: ?>

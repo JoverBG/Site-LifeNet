@@ -263,23 +263,30 @@ html.lenis, html.lenis body { height: auto; }
 }
 @keyframes cta-shine { 0%, 65% { transform: translateX(-120%); } 100% { transform: translateX(120%); } }
 
-/* --- Trilho de progresso (ProgressRail) --- */
-.rail-dot {
-  position: relative; display: block; width: 11px; height: 11px; border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.25); background: #050b14;
-  transition: border-color .4s, background-color .4s, box-shadow .4s, transform .4s var(--ease-out-expo);
+/* --- Barra de ícones das seções (ProgressRail) --- */
+.rail-dock {
+  flex-direction: column; gap: 4px; padding: 8px; border-radius: 999px;
+  background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
 }
-.rail-dot:hover { transform: scale(1.25); border-color: #fff; }
-.rail-dot[data-past="true"] { border-color: #007BFF; background: #007BFF; }
-.rail-dot[data-active="true"] { border-color: #38bdf8; box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.18), 0 0 14px rgba(0, 123, 255, 0.7); }
-.rail-dot[data-active="true"]::after { content: ""; position: absolute; inset: 2px; border-radius: inherit; background: #38bdf8; }
-.rail-label {
-  position: absolute; left: 22px; top: 50%; transform: translate(-6px, -50%); white-space: nowrap;
-  font-size: 10px; font-weight: 800; letter-spacing: .25em; text-transform: uppercase; color: #cbd5e1;
-  background: rgba(10, 17, 34, 0.9); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 999px; padding: 4px 10px;
-  opacity: 0; pointer-events: none; transition: opacity .3s, transform .4s var(--ease-out-expo);
+.rail-btn {
+  position: relative; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 999px;
+  color: #64748b; font-size: 15px;
+  transition: color .3s, background-color .3s, box-shadow .4s, transform .4s var(--ease-out-expo);
 }
-.rail-dot:hover .rail-label, .rail-dot:focus-visible .rail-label { opacity: 1; transform: translate(0, -50%); }
+.rail-btn:hover, .rail-btn:focus-visible { color: #e2e8f0; background: rgba(255, 255, 255, 0.06); transform: scale(1.08); outline: none; }
+.rail-btn[data-past="true"] { color: #5b9cf0; }
+.rail-btn[data-active="true"] {
+  color: #fff; background: linear-gradient(135deg, #007BFF, #0057d9);
+  box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.15), 0 6px 18px rgba(0, 123, 255, 0.45);
+}
+.rail-tip {
+  position: absolute; left: 50px; top: 50%; transform: translate(-6px, -50%); white-space: nowrap;
+  font-size: 12px; font-weight: 600; color: #e2e8f0;
+  background: rgba(10, 17, 34, 0.95); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 5px 10px;
+  opacity: 0; pointer-events: none; transition: opacity .25s, transform .4s var(--ease-out-expo);
+}
+.rail-btn:hover .rail-tip, .rail-btn:focus-visible .rail-tip { opacity: 1; transform: translate(0, -50%); }
 
 /* --- Preloader: só existe com html.preload (script do <head>, 1ª visita da sessão) --- */
 #preloader { display: none; }

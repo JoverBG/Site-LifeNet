@@ -1,18 +1,31 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 /**
- * Trilho fino à esquerda com um ponto por seção (`[data-rail="Rótulo"]` + id):
- * a linha enche conforme a rolagem e o ponto da seção atual acende. Clicar leva
- * à seção (o Lenis cuida da âncora). Só em telas largas, onde sobra margem ao
- * lado do conteúdo; no celular não aparece.
+ * Barra vertical de ícones à esquerda, um por seção (`[data-rail="Rótulo"]` + id).
+ * O ícone da seção atual acende, os já passados ficam azuis e o nome aparece ao
+ * passar o mouse (ou no foco do teclado). Clicar leva à seção (o Lenis cuida da
+ * âncora). Só em telas largas, onde sobra margem ao lado do conteúdo.
  */
 type Item = { id: string; label: string };
+
+/** Ícone (Font Awesome 6, solid) de cada seção, pelo id. */
+const ICONS: Record<string, string> = {
+  inicio: "fa-house",
+  "por-que": "fa-award",
+  planos: "fa-wifi",
+  simulador: "fa-sliders",
+  numeros: "fa-chart-simple",
+  "como-funciona": "fa-route",
+  atendimento: "fa-headset",
+  app: "fa-mobile-screen",
+  status: "fa-wave-square",
+  faq: "fa-circle-question",
+};
 
 export default function ProgressRail() {
   const [items, setItems] = useState<Item[]>([]);
   const [active, setActive] = useState(0);
-  const fill = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     const els = Array.from(document.querySelectorAll<HTMLElement>("[data-rail][id]"));
@@ -20,9 +33,6 @@ export default function ProgressRail() {
     let raf = 0;
     const measure = () => {
       raf = 0;
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      const p = max > 0 ? Math.min(1, window.scrollY / max) : 0;
-      if (fill.current) fill.current.style.transform = `scaleY(${p})`;
       const line = window.innerHeight * 0.4;
       let cur = 0;
       els.forEach((el, i) => { if (el.getBoundingClientRect().top <= line) cur = i; });
@@ -42,20 +52,14 @@ export default function ProgressRail() {
   if (items.length < 2) return null;
 
   return (
-    <nav aria-label="Seções da página" className="progress-rail fixed left-6 top-1/2 z-40 -translate-y-1/2 hidden min-[1400px]:block">
-      <span className="absolute left-1/2 top-0 bottom-0 w-px -translate-x-1/2 bg-white/10" aria-hidden="true" />
-      <span ref={fill} className="absolute left-1/2 top-0 bottom-0 w-px -translate-x-1/2 origin-top bg-gradient-to-b from-[#007BFF] to-[#FF8C00]"
-        style={{ transform: "scaleY(0)" }} aria-hidden="true" />
-      <ul className="relative flex flex-col gap-7 py-2">
-        {items.map((it, i) => (
-          <li key={it.id}>
-            <a href={`#${it.id}`} className="rail-dot group" data-active={i === active} data-past={i < active}
-              aria-current={i === active ? "true" : undefined}>
-              <span className="rail-label">{it.label}</span>
-            </a>
-          </li>
-        ))}
-      </ul>
+    <nav aria-label="Seções da página" className="rail-dock fixed left-5 top-1/2 z-40 -translate-y-1/2 hidden min-[1400px]:flex">
+      {items.map((it, i) => (
+        <a key={it.id} href={`#${it.id}`} className="rail-btn" data-active={i === active} data-past={i < active}
+          aria-label={it.label} aria-current={i === active ? "true" : undefined}>
+          <i aria-hidden="true" className={`fa-solid ${ICONS[it.id] ?? "fa-circle"}`} />
+          <span className="rail-tip" aria-hidden="true">{it.label}</span>
+        </a>
+      ))}
     </nav>
   );
 }
